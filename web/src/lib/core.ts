@@ -1,4 +1,4 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 
 export class ApiError extends Error {
@@ -13,6 +13,12 @@ export function secretMatches(received: string | null, expected: string) {
   if (expected.length < 32) throw new ApiError(503, "CONFIGURATION_INVALID", "Secret configuration is incomplete.");
   const digest = (s: string) => createHash("sha256").update(s).digest();
   return received !== null && timingSafeEqual(digest(received), digest(expected));
+}
+export function createPartnerWebhook(event: { event_id: string; event_type: string; data: Record<string, unknown> }, secret: string) {
+  const payload = { id: event.event_id, type: event.event_type, data: event.data };
+  const body = JSON.stringify(payload);
+  const signature = createHmac("sha256", secret).update(body, "utf8").digest("hex");
+  return { body, signature, payload };
 }
 export function json(value: unknown, status = 200) {
   return Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
@@ -73,4 +79,3 @@ export function normalizePartner(text: string) {
   if (raw?.success === false || !result.success) throw new ApiError(502, "PARTNER_INVALID_RESPONSE", "Partner response does not match the contract.");
   return { partner_team: result.data.team, partner_service: result.data.service, partner_status: result.data.status, partner_version: result.data.version };
 }
-

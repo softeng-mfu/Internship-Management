@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 import { POST as send } from "../src/app/api/integration/status-events/route";
@@ -25,7 +26,14 @@ test("routes with actual SQL: protected writes, one send per key, conflicts, sec
       const url = String(input);
       if (url === process.env.PARTNER_WEBHOOK_URL) {
         deliveries++;
-        assert.equal(new Headers(init?.headers).get("X-Webhook-Secret"), "p".repeat(32));
+        const rawBody = String(init?.body);
+        const signature = createHmac("sha256", "p".repeat(32)).update(rawBody, "utf8").digest("hex");
+        assert.equal(new Headers(init?.headers).get("X-Webhook-Signature"), signature);
+        assert.equal(new Headers(init?.headers).has("X-Webhook-Secret"), false);
+        const outgoing = JSON.parse(rawBody);
+        assert.deepEqual(Object.keys(outgoing).sort(), ["data", "id", "type"]);
+        assert.equal(outgoing.type, "internship.status_changed");
+        assert.equal(outgoing.data.demo, true);
         return Response.json({ success: true });
       }
       if (url === process.env.PARTNER_API_URL) return broken ? new Response("unavailable", { status: 503 }) : Response.json({ team: "partner", version: "1", status: "ok" });
@@ -62,9 +70,20 @@ test("routes with actual SQL: protected writes, one send per key, conflicts, sec
     assert.equal((await (await receive(hook("w".repeat(32)))).json()).duplicate, false);
     assert.equal((await (await receive(hook("w".repeat(32)))).json()).duplicate, true);
     broken = true;
-    assert.equal((await consume()).status, 503);
+    const failureStart = Date.now();
+    const failedConsumer = await consume();
+    assert.equal(failedConsumer.status, 503);
+    const failedBody = await failedConsumer.json();
+    assert.ok(Date.parse(failedBody.requested_at) >= failureStart);
+    assert.ok(Date.parse(failedBody.requested_at) <= Date.now());
     broken = false;
-    assert.equal((await consume()).status, 200);
+    const successStart = Date.now();
+    const successfulConsumer = await consume();
+    assert.equal(successfulConsumer.status, 200);
+    const successBody = await successfulConsumer.json();
+    assert.ok(Date.parse(successBody.requested_at) >= successStart);
+    assert.ok(Date.parse(successBody.requested_at) <= Date.now());
+    assert.ok(successBody.requested_at.endsWith("Z"));
   } finally {
     globalThis.fetch = originalFetch;
     for (const key of Object.keys(process.env)) if (!(key in savedEnv)) delete process.env[key];
@@ -72,4 +91,3 @@ test("routes with actual SQL: protected writes, one send per key, conflicts, sec
     await db.close();
   }
 });
-

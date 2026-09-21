@@ -19,7 +19,7 @@ Copy-Item .env.example .env.local
 Fill `.env.local` in your editor:
 - Supabase project URL and server-only service-role key.
 - A random WEBHOOK_SECRET for our receiver, shared securely with Alumni.
-- Alumni's PARTNER_WEBHOOK_SECRET for requests to their receiver.
+- Alumni's PARTNER_WEBHOOK_SECRET, used as the HMAC-SHA256 key for requests to their receiver.
 - A separate INTEGRATION_ADMIN_TOKEN for your own operator requests.
 - Confirm PARTNER_TEAM matches the incoming event's source exactly.
 Generate each of the three secrets independently, with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`.
@@ -114,7 +114,8 @@ Changing your URL and redeploying is NOT proof of automatic recovery.
 ## 7. Deploy and exchange evidence
 Deploy the repository using Vercel with Root Directory `web`. Configure all environment variables. Ensure the partner can reach the production endpoint without Vercel preview authentication.
 Share your base URL, GET /api/integration/status, POST /api/webhooks/partner and receiver secret securely.
-Confirm their required header is X-Webhook-Secret, and their accepted snake_case payload includes event_id, event_type, occurred_at, source, data.
+Alumni's receiver requires `X-Webhook-Signature`, containing the lowercase hex HMAC-SHA256 digest of the exact raw request body. The shared secret is used as the UTF-8 HMAC key. The outgoing body is `{ "id": "<event id>", "type": "<event type>", "data": {} }`; the sender serializes it once and signs and transmits those same bytes.
+Our incoming receiver remains a separate contract: `X-Webhook-Secret` with `event_id`, `event_type`, `occurred_at`, `source`, and `data`. Confirm this reciprocal contract with Alumni before their test send.
 The partner owns the receiver secret for each direction. They only need to rotate an old secret if neither party has its original value; do not assume it must be rotated.
 Ask the partner to call your endpoint and send the webhook; obtain their confirmation. No messages or webhooks were sent to the partner by this setup.
 
@@ -125,4 +126,3 @@ POST /api/integration/status-events creates one demo event. Operator authorizati
 Complete A5-Team17-Integration-Evidence.md with real results, partner confirmation and screenshots. Keep local mock results labeled separately. Include reflection and the agent-safe design. Do not mark deployment or external tests as complete until they actually run.
 
 References: [Next.js Route Handlers](https://nextjs.org/docs/app/getting-started/route-handlers), [Supabase database functions](https://supabase.com/docs/guides/database/functions).
-

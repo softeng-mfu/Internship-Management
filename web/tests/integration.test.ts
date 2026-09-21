@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
-import { ApiError, eventSchema, normalizePartner, partnerRequest, readBody, secretMatches } from "../src/lib/core";
+import { ApiError, createPartnerWebhook, eventSchema, normalizePartner, partnerRequest, readBody, secretMatches } from "../src/lib/core";
+import { createHmac } from "node:crypto";
 import { createServer } from "node:http";
 
 test("secret verification and payload validation", () => {
@@ -11,6 +12,21 @@ test("secret verification and payload validation", () => {
   assert.equal(secretMatches("wrong", secret), false);
   assert.equal(secretMatches(null, secret), false);
   assert.equal(eventSchema.safeParse({ application_id: "demo", previous_status: "approved", current_status: "approved" }).success, false);
+});
+test("Pod 5 webhook uses its required payload and HMAC-SHA256 signature", () => {
+  const secret = "p".repeat(32);
+  const webhook = createPartnerWebhook({
+    event_id: "evt-001",
+    event_type: "internship.status_changed",
+    data: { demo: true },
+  }, secret);
+  assert.deepEqual(JSON.parse(webhook.body), {
+    id: "evt-001",
+    type: "internship.status_changed",
+    data: { demo: true },
+  });
+  assert.equal(webhook.signature, createHmac("sha256", secret).update(webhook.body, "utf8").digest("hex"));
+  assert.match(webhook.signature, /^[a-f0-9]{64}$/);
 });
 test("flat and wrapped partner contracts; rejects invalid JSON and shape", () => {
   const p = { team: "partner", status: "ok", version: "0.1" };
@@ -70,4 +86,3 @@ test("actual SQL migration: atomic claims, replay, conflict, receipt deduplicati
     assert.equal((await claim("service")).created, true);
   } finally { await db.close(); }
 });
-

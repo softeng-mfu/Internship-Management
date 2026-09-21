@@ -1,4 +1,4 @@
-import { ApiError, eventSchema, failure, json, partnerRequest, readBody, required, secretMatches } from "@/lib/core";
+import { ApiError, createPartnerWebhook, eventSchema, failure, json, partnerRequest, readBody, required, secretMatches } from "@/lib/core";
 import { rpc, log } from "@/lib/store";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
@@ -22,7 +22,12 @@ export async function POST(request: Request) {
     }
     let delivery;
     try {
-      const result = await partnerRequest(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Webhook-Secret": secret }, body: JSON.stringify(claim.event) });
+      const webhook = createPartnerWebhook(claim.event, secret);
+      const result = await partnerRequest(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Webhook-Signature": webhook.signature },
+        body: webhook.body,
+      });
       // Store a bounded response; redact known credentials even if the receiver echoes them.
       const text = result.text.split(secret).join("[REDACTED]").slice(0, 4096);
       delivery = { state: result.ok ? "delivered" : "failed", status: result.status, response: text, attempted_at: new Date().toISOString() };
