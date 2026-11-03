@@ -1,3 +1,13 @@
 import type { ReactNode } from "react";
-export default function Layout({ children }: { children: ReactNode }) { return <html lang="en"><body style={{fontFamily:"system-ui",maxWidth:800,margin:"64px auto",padding:24}}>{children}</body></html>; }
-
+import "./globals.css";
+export const metadata = {
+  title: "Internly — Your next chapter",
+  description: "A thoughtful workspace for your internship journey.",
+};
+export default function Layout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
