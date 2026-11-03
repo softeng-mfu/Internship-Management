@@ -11,19 +11,20 @@
     "mock-partner": "tsx scripts/mock-partner.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "latest",
     "next": "latest",
+    "postgres": "^4.0.0",
     "react": "latest",
     "react-dom": "latest",
-    "@supabase/supabase-js": "latest",
-    "zod": "latest",
-    "server-only": "latest"
+    "server-only": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
-    "typescript": "latest",
+    "@electric-sql/pglite": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "tsx": "latest",
-    "@electric-sql/pglite": "latest"
+    "typescript": "latest"
   }
 }

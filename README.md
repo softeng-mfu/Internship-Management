@@ -37,3 +37,27 @@ git push -u origin HEAD
 ```
 
 Review staged files before committing. These commands publish the existing history along with the new changes; they do not create a history-free repository.
+
+## Frontend workspace
+
+The homepage contains the Internly student dashboard, searchable opportunities,
+saved listings, an application tracker, weekly reports, and an advisor preview.
+Internship listings and workflow actions are clearly labeled samples. Sample
+changes persist in browser local storage and do not write to Supabase.
+
+### Live integration activity
+
+The Integration activity section reads the existing A5 tables. Configure a
+server-only `DATABASE_URL` in `web/.env.local`, and set an independent random
+`INTEGRATION_ADMIN_TOKEN` of at least 32 characters. Open Integration activity
+and enter that operator token. It is held in memory, not browser storage.
+The endpoint requires bearer authorization and returns only counts and selected
+record metadata, excluding raw payloads and responses. PostgreSQL connections
+verify TLS using `web/certs/supabase-ca.crt` and use read-only sessions.
+The supplied certificate is Supabase's public root CA, downloaded from
+https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt.
+
+The existing webhook/write routes continue using Supabase's API and still need
+`SUPABASE_SERVICE_ROLE_KEY` and their respective secrets. Direct database
+configuration does not replace those settings. No tables are created or seeded
+by the frontend.
