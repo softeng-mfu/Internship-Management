@@ -1,0 +1,40 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "title": "Product Design Intern",
+      "skills": [
+        "Figma",
+        "UI/UX",
+        "Prototyping"
+      ],
+      "status": "open",
+      "company": "Sample Studio",
+      "is_demo": true,
+      "category": "Design",
+      "location": "Bangkok, Thailand",
+      "work_mode": "hybrid",
+      "updated_at": "2026-11-07T11:56:20.628Z",
+      "description": "Practice user research and turn ideas into thoughtful, accessible prototypes with a design mentor.",
+      "published_at": "2026-11-07T11:56:20.628Z",
+      "allowance_thb": 12000,
+      "duration_weeks": 12,
+      "application_deadline": "2027-02-05",
+      "details_url": "http://127.0.0.1:3001/opportunities/10000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 1,
+    "total": 6,
+    "total_pages": 6,
+    "has_next": true
+  },
+  "meta": {
+    "api_version": "1.0",
+    "request_id": "74bf4ab0-fed6-4758-9dad-02667b40baa8",
+    "timestamp": "2026-11-07T12:07:06.129Z",
+    "data_source": "local-postgresql"
+  }
+}
