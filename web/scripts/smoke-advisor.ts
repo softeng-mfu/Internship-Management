@@ -7,7 +7,7 @@ async function main() {
       .filter((l) => l.includes("=") && !l.startsWith("#"))
       .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]),
   );
-  const base = "http://127.0.0.1:3001";
+  const base = "http://localhost:3000";
   const call = (path: string, body?: unknown, cookie?: string) =>
     fetch(base + path, {
       method: body ? "POST" : "GET",

@@ -7,7 +7,9 @@ export const metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      {/* Extensions such as Grammarly add body attributes before hydration.
+          Suppress only this element's mismatch; child components remain checked. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

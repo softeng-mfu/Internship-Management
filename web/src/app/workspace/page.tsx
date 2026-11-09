@@ -23,6 +23,7 @@ export default async function WorkspacePage({
     redirect("/advisor");
   const tabs: Record<string, string> = {
     overview: "Overview",
+    advisors: "Advisors",
     opportunities: "Opportunities",
     applications: "Applications",
     reports: "Progress reports",

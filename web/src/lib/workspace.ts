@@ -34,6 +34,9 @@ export function workspaceStore(database: DatabaseSync | Pool) {
       `create index if not exists internship_assignment_advisor on internship_assignments(advisor_id)`,
       `create index if not exists internship_application_student on internship_applications(student_id)`,
       `create index if not exists internship_report_student on internship_reports(student_id)`,
+      `create table if not exists internship_connection_requests (id text primary key, student_id text not null references "user"(id) on delete cascade, advisor_id text not null references "user"(id) on delete cascade, message text not null, status text not null check(status in ('pending','accepted','rejected','cancelled')), created_at text not null, updated_at text not null)`,
+      `create unique index if not exists internship_connection_pending on internship_connection_requests(student_id) where status='pending'`,
+      `create index if not exists internship_connection_advisor on internship_connection_requests(advisor_id,status)`,
     ])
       await query(sql);
   }
@@ -84,12 +87,21 @@ export function workspaceStore(database: DatabaseSync | Pool) {
             [actor.id],
           )
         : [];
+    const directory = actor.role === "student"
+      ? await query(`select id,name from "user" where role='advisor' order by name,id`)
+      : [];
+    const requests = await query(
+      `select r.*,s.name as student_name,s."studentId" as student_number,a.name as advisor_name from internship_connection_requests r join "user" s on s.id=r.student_id join "user" a on a.id=r.advisor_id where ${actor.role === "student" ? "r.student_id=?" : actor.role === "advisor" ? "r.advisor_id=?" : "1=1"} order by r.created_at desc`,
+      values,
+    );
     return {
       role: actor.role,
       students,
       applications,
       reports,
       advisor: advisors[0]?.name || null,
+      advisors: directory,
+      connectionRequests: requests,
     };
   }
   async function assign(student: string, advisor: string) {
@@ -151,6 +163,9 @@ export function workspaceStore(database: DatabaseSync | Pool) {
     const id = z.string().uuid();
     const input = z
       .discriminatedUnion("action", [
+        z.object({ action: z.literal("requestAdvisor"), advisorId: z.string().min(1).max(128), message: z.string().trim().min(1).max(2000) }).strict(),
+        z.object({ action: z.literal("cancelAdvisorRequest"), id }).strict(),
+        z.object({ action: z.literal("respondAdvisorRequest"), id, decision: z.enum(["accepted", "rejected"]) }).strict(),
         z
           .object({
             action: z.literal("reviewApplication"),
@@ -182,10 +197,53 @@ export function workspaceStore(database: DatabaseSync | Pool) {
       throw new ApiError(
         400,
         "INVALID_INPUT",
-        "Check the review or report fields.",
+        "Check the connection request, review or report fields.",
       );
     const body = input.data,
       now = new Date().toISOString();
+    if (body.action === "requestAdvisor") {
+      if (actor.role !== "student") throw new ApiError(403, "FORBIDDEN", "Only students can request an advisor.");
+      const rows = await query(
+        `insert into internship_connection_requests(id,student_id,advisor_id,message,status,created_at,updated_at) select ?,?,id,?,'pending',?,? from "user" where id=? and role='advisor' and not exists(select 1 from internship_assignments where student_id=?) on conflict do nothing returning id`,
+        [randomUUID(), actor.id, body.message, now, now, body.advisorId, actor.id],
+      );
+      if (!rows.length) throw new ApiError(409, "CONNECTION_UNAVAILABLE", "Choose an available advisor. You may have only one pending request and one assigned advisor.");
+      return;
+    }
+    if (body.action === "cancelAdvisorRequest") {
+      if (actor.role !== "student") throw new ApiError(403, "FORBIDDEN", "Only students can cancel their request.");
+      const rows = await query(`update internship_connection_requests set status='cancelled',updated_at=? where id=? and student_id=? and status='pending' returning id`, [now, body.id, actor.id]);
+      if (!rows.length) throw new ApiError(409, "CONNECTION_UNAVAILABLE", "This request changed or is unavailable. Refresh and try again.");
+      return;
+    }
+    if (body.action === "respondAdvisorRequest") {
+      if (actor.role !== "advisor") throw new ApiError(403, "FORBIDDEN", "Only the requested advisor can respond.");
+      // Lock the request by updating it first; the assignment and decision commit together.
+      const statements = [
+        { sql: `update internship_connection_requests set status=?,updated_at=? where id=? and advisor_id=? and status='pending' returning student_id`, values: [body.decision, now, body.id, actor.id] },
+        ...(body.decision === "accepted" ? [{ sql: `insert into internship_assignments(student_id,advisor_id,created_at) select student_id,advisor_id,? from internship_connection_requests where id=? and advisor_id=? and status='accepted' on conflict(student_id) do nothing returning student_id`, values: [now, body.id, actor.id] }] : []),
+      ];
+      const conflict = () => new ApiError(409, "CONNECTION_UNAVAILABLE", "This request changed or the student already has an advisor. Refresh and try again.");
+      if (database instanceof DatabaseSync) {
+        database.exec("BEGIN IMMEDIATE");
+        try {
+          for (const statement of statements) if (!database.prepare(statement.sql).all(...statement.values).length) throw conflict();
+          database.exec("COMMIT");
+        } catch (error) { database.exec("ROLLBACK"); throw error; }
+      } else {
+        const client = await database.connect();
+        try {
+          await client.query("BEGIN");
+          for (const statement of statements) {
+            let index = 0;
+            if (!(await client.query(statement.sql.replace(/\?/g, () => `$${++index}`), statement.values)).rows.length) throw conflict();
+          }
+          await client.query("COMMIT");
+        } catch (error) { await client.query("ROLLBACK"); throw error; }
+        finally { client.release(); }
+      }
+      return;
+    }
     if (body.action === "submitReport") {
       if (actor.role !== "student")
         throw new ApiError(

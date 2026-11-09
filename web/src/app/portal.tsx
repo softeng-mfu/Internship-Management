@@ -5,6 +5,7 @@ import { authClient } from "@/lib/auth-client";
 import PlacementBrowser from "./placement-browser";
 import ActivityPanel from "./activity-panel";
 import IdentityPanel from "./identity-panel";
+import ConnectionPanel, { type Advisor, type ConnectionRequest } from "./connection-panel";
 type Application = {
   id: string;
   student_id: string;
@@ -43,6 +44,8 @@ type Workspace = {
   applications: Application[];
   reports: Report[];
   advisor: string | null;
+  advisors: Advisor[];
+  connectionRequests: ConnectionRequest[];
 };
 type Opportunity = { id: string; title: string; company: string };
 export default function Portal({
@@ -75,6 +78,7 @@ export default function Portal({
       Overview: "overview",
       Opportunities: "opportunities",
       Students: "students",
+      Advisors: "advisors",
       Applications: "applications",
       "Progress reports": "reports",
       Integrations: "integrations",
@@ -115,6 +119,11 @@ export default function Portal({
         throw new Error(
           body.error?.message || "Unable to load your workspace.",
         );
+      if (body.data.role !== initialRole) {
+        setData(null);
+        window.location.replace(body.data.role === "student" ? "/workspace" : "/advisor");
+        return;
+      }
       setData(body.data);
       setError("");
     } catch (e) {
@@ -126,9 +135,14 @@ export default function Portal({
   }
   useEffect(() => {
     const controller = new AbortController();
-    void load(controller.signal);
-    return () => controller.abort();
-  }, []);
+    const refresh = () => { void load(controller.signal); };
+    refresh();
+    window.addEventListener("focus", refresh);
+    return () => {
+      controller.abort();
+      window.removeEventListener("focus", refresh);
+    };
+  }, [initialRole]);
   useEffect(() => {
     if (data?.role !== "student") return;
     const controller = new AbortController();
@@ -176,6 +190,11 @@ export default function Portal({
   }, [data?.role, initialPlacement]);
   const role = data?.role || initialRole;
   const advisor = role === "advisor" || role === "admin";
+  const approvedApplications = data?.applications.filter((a) => a.status === "approved") || [];
+  const awaitingApproval = data?.applications.some((a) => ["submitted", "under_review"].includes(a.status));
+  useEffect(() => {
+    if (dialog === "report" && data && !approvedApplications.length) setDialog(null);
+  }, [dialog, data, approvedApplications.length]);
   const apps =
       data?.applications.filter(
         (a) => student === "all" || a.student_id === student,
@@ -229,6 +248,7 @@ export default function Portal({
               ]
             : [
                 "Overview",
+                "Advisors",
                 "Opportunities",
                 "Applications",
                 "Progress reports",
@@ -283,7 +303,7 @@ export default function Portal({
             <p className="muted">
               {advisor
                 ? "Review applications and support the students assigned to you."
-                : `Real applications and weekly progress.${data?.advisor ? ` Your advisor: ${data.advisor}.` : " An advisor has not been assigned yet."}`}
+                : `Real applications and weekly progress.${data?.advisor ? ` Your advisor: ${data.advisor}.` : " Open Advisors to request a connection."}`}
             </p>
           </div>
           {tab !== "Integrations" && (
@@ -354,6 +374,11 @@ export default function Portal({
               )}
               {tab === "Overview" && (
                 <>
+                  {(!data.advisor || advisor) && <section className="full-panel">
+                    <h2>{advisor ? "Student connections" : "Connect with your advisor"}</h2>
+                    <p className="muted">{advisor ? `${data.connectionRequests.filter((r) => r.status === "pending").length} connection requests awaiting your response.` : "Choose an advisor and send an introduction to start sharing your applications and reports."}</p>
+                    <button className="secondary" onClick={() => navigate(advisor ? "Students" : "Advisors")}>{advisor ? "View students and requests →" : "Find an advisor →"}</button>
+                  </section>}
                   <section className="portal-banner">
                     <span className="eyebrow">CONNECTED TO YOUR WORKSPACE</span>
                     <h2>
@@ -405,6 +430,7 @@ export default function Portal({
                       </div>
                     ))}
                   </div>
+
                   <section className="full-panel">
                     <h2>
                       {advisor
@@ -452,6 +478,9 @@ export default function Portal({
                   </section>
                 </>
               )}
+              {((tab === "Advisors" && !advisor) || (tab === "Students" && role === "advisor")) && (
+                <ConnectionPanel advisorView={advisor} assignedAdvisor={data.advisor} advisors={data.advisors} requests={data.connectionRequests} busy={busy} submit={submit} />
+              )}
               {tab === "Students" && advisor && (
                 <section className="full-panel">
                   <h2>
@@ -459,7 +488,7 @@ export default function Portal({
                     <span className="count-pill">{data.students.length}</span>
                   </h2>
                   {!data.students.length ? (
-                    <Empty text="No students assigned yet. Your administrator can assign students after their first Identity sign-in." />
+                    <Empty text="No students connected yet. Accept a student's connection request above to start reviewing their applications and reports." />
                   ) : (
                     <div className="portal-grid">
                       {data.students.map((s) => (
@@ -533,6 +562,7 @@ export default function Portal({
                     ) : (
                       <button
                         className="primary"
+                        disabled={busy || (tab === "Progress reports" && !approvedApplications.length)}
                         onClick={() =>
                           tab === "Applications"
                             ? navigate("Opportunities")
@@ -546,6 +576,20 @@ export default function Portal({
                       </button>
                     )}
                   </div>
+                  {tab === "Progress reports" && !advisor && !approvedApplications.length && (
+                    <section className="full-panel" role="status">
+                      <h2>{awaitingApproval ? "Your internship is awaiting approval" : "An approved internship is needed"}</h2>
+                      <p className="muted">
+                        {awaitingApproval
+                          ? `Your application is still submitted or under review. ${data.advisor ? `Ask ${data.advisor} to review it in their Applications tab.` : "Connect with an advisor in the Advisors tab so they can review it."} Once approved, you can write weekly reports here.`
+                          : "Apply for an internship and have your advisor approve the application. Weekly reports will then be available here."}
+                      </p>
+                      <button className="secondary" onClick={() => navigate(data.applications.length ? "Applications" : "Opportunities")}>
+                        {data.applications.length ? "View your applications →" : "Find an internship →"}
+                      </button>
+                      {!data.advisor && <button className="text-button" onClick={() => navigate("Advisors")}>Connect with an advisor →</button>}
+                    </section>
+                  )}
                   {tab === "Applications" ? (
                     <section className="full-panel">
                       {!apps.length ? (
@@ -593,7 +637,12 @@ export default function Portal({
                   ) : (
                     <section className="full-panel">
                       {!reports.length ? (
-                        <Empty text="No reports yet. Students can submit weekly reports after an application is approved." />
+                        <>
+                          <Empty text={advisor
+                            ? "No reports from these students yet. Review their internship applications first. After approval, students can submit weekly reports for your feedback."
+                            : "No reports yet. Submit a weekly report for an approved internship to share your progress with your advisor."} />
+                          {advisor && <button className="secondary" onClick={() => setTab("Applications")}>Review internship applications →</button>}
+                        </>
                       ) : (
                         reports.map((r) => (
                           <article className="portal-record" key={r.id}>
@@ -784,10 +833,9 @@ export default function Portal({
                   <>
                     <label>
                       Approved internship
-                      <select name="application" required>
+                      <select name="application" required defaultValue={approvedApplications.length === 1 ? approvedApplications[0].id : ""}>
                         <option value="">Choose your internship</option>
-                        {data?.applications
-                          .filter((a) => a.status === "approved")
+                        {approvedApplications
                           .map((a) => (
                             <option key={a.id} value={a.id}>
                               {a.title} · {a.company}
@@ -839,7 +887,7 @@ export default function Portal({
                     {error}
                   </p>
                 )}
-                <button className="primary" disabled={busy}>
+                <button className="primary" disabled={busy || (dialog === "report" && !approvedApplications.length)}>
                   {busy ? "Saving…" : "Save and continue →"}
                 </button>
               </form>

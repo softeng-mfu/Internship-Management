@@ -1,9 +1,19 @@
+# Dependencies and generated build files
 node_modules/
 .next/
+*.tsbuildinfo
+
+# Private configuration and generated administrator/advisor credentials
 .env*
 !.env.example
-*.tsbuildinfo
+
+# Local databases, including SQLite journal files and backups
+.data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local tooling and operating-system files
 supabase/.temp/
 .DS_Store
-web/.data/
 tmp/pdfs/

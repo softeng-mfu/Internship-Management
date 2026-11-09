@@ -52,6 +52,10 @@ for (const engine of ["sqlite", "postgres"] as const)
         placement,
         "I would like to learn backend engineering.",
       );
+      await assert.rejects(
+        store.apply(advisor, placement, "An advisor cannot apply as a student."),
+        (e: unknown) => e instanceof ApiError && e.status === 403,
+      );
       assert.equal((await store.read(student)).applications.length, 1);
       assert.equal((await store.read(advisor)).applications.length, 1);
       assert.equal((await store.read(advisor)).students[0].id, student.id);
@@ -140,6 +144,15 @@ for (const engine of ["sqlite", "postgres"] as const)
         content: "This week I learned how to build accessible components.",
       });
       await assert.rejects(
+        store.mutate(advisor, {
+          action: "submitReport",
+          applicationId: app,
+          week: 2,
+          content: "An advisor cannot submit reports for a student.",
+        }),
+        (e: unknown) => e instanceof ApiError && e.status === 403,
+      );
+      await assert.rejects(
         store.mutate(student, {
           action: "submitReport",
           applicationId: app,
@@ -149,6 +162,16 @@ for (const engine of ["sqlite", "postgres"] as const)
       );
       const report = (await store.read(advisor)).reports[0];
       assert.equal((await store.read(outsider)).reports.length, 0);
+      assert.equal((await store.read(other)).reports.length, 0);
+      await assert.rejects(
+        store.mutate(student, {
+          action: "reviewReport",
+          id: report.id,
+          version: 1,
+          feedback: "A student cannot write advisor feedback.",
+        }),
+        (e: unknown) => e instanceof ApiError && e.status === 403,
+      );
       await assert.rejects(
         store.mutate(outsider, {
           action: "reviewReport",
@@ -166,6 +189,15 @@ for (const engine of ["sqlite", "postgres"] as const)
       assert.equal(
         (await store.read(student)).reports[0].feedback,
         "Great progress. Include concrete examples next week.",
+      );
+      await assert.rejects(
+        store.mutate(advisor, {
+          action: "reviewReport",
+          id: report.id,
+          version: 1,
+          feedback: "Stale feedback must not overwrite the latest review.",
+        }),
+        (e: unknown) => e instanceof ApiError && e.status === 409,
       );
       await store.assign(student.id, outsider.id);
       await assert.rejects(

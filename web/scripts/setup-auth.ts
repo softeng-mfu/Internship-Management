@@ -8,7 +8,7 @@ async function main() {
   if (process.env.AUTH_DB_MODE === "postgres" || process.env.VERCEL) throw new Error("This bootstrap is for local development only.");
   const settings: Record<string, string> = {
     AUTH_DB_MODE: "local",
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://127.0.0.1:3001",
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || randomBytes(48).toString("base64url"),
   };
   for (const [key, value] of Object.entries(settings)) {

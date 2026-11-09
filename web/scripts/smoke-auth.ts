@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 
 async function main() {
   const values = Object.fromEntries(readFileSync(".env.auth-admin.local", "utf8").split(/\r?\n/).filter(l => l && !l.startsWith("#")).map(l => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]));
-  const base = "http://127.0.0.1:3001";
+  const base = "http://localhost:3000";
   const call = (path: string, body?: unknown, cookie?: string) => fetch(base + path, { method: body ? "POST" : "GET", headers: { origin: base, ...(body ? { "content-type": "application/json" } : {}), ...(cookie ? { cookie } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(30000) });
   assert.equal((await call("/sign-in")).status, 200);
   assert.equal((await call("/api/integration/activity")).status, 401);

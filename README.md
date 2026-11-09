@@ -15,14 +15,36 @@ Start with the [implementation guide](docs/IMPLEMENTATION_A5.md). Record live te
 
 ## Local development
 
+Use Node.js 24 for the local setup and development server.
+
 ```powershell
 cd web
 npm ci
 npm run placements:setup
-npm run dev
+npm run auth:setup
+npm run dev -- --webpack --hostname localhost --port 3000
 ```
 
 Configure `web/.env.local` using `web/.env.example`. Keep credentials private. Environment files, dependencies and build output are ignored by Git.
+
+Open **http://localhost:3000**. The development command uses this address to
+match `BETTER_AUTH_URL` in the example configuration. Login requires the browser
+origin (hostname and port) to match `BETTER_AUTH_URL` exactly; `127.0.0.1:3000`
+is a different origin. If you change the address, update `BETTER_AUTH_URL` and
+`PUBLIC_SITE_URL` in `web/.env.local` and restart the server.
+
+At `/sign-in`, students use their campus Student Identity account. Advisor
+accounts are stored in your local database, so an account created on a friend's
+machine will not exist here. Choose **Advisor login → Create advisor account**,
+or run `npm run advisor:setup` to provision a local advisor whose credentials
+are saved privately in `web/.env.advisor.local`. The administrator created by
+`auth:setup` can also use Advisor login; its credentials are in
+`web/.env.auth-admin.local`.
+
+The homepage shows the public catalogue when signed out and redirects signed-in
+users to their student or advisor workspace. To compare screens with a teammate,
+check that you are on the same Git commit, route and account role. Local accounts
+and database contents are private to each machine.
 
 ## Connect a new repository
 
@@ -68,18 +90,18 @@ See the [handover guide](docs/handover/README.md),
 [Postman collection](docs/handover/placements.postman_collection.json).
 
 Configure `.env.local` inside `web` with `PLACEMENTS_DB_MODE=local` and
-`PUBLIC_SITE_URL=http://127.0.0.1:3001`. Run the following from `web` while the
+`PUBLIC_SITE_URL=http://localhost:3000`. Run the following from `web` while the
 server is stopped for setup; no remote database is modified:
 
 ```powershell
 npm run placements:setup
-npm run dev -- --hostname 127.0.0.1 --port 3001
+npm run dev -- --hostname localhost --port 3000
 ```
 
-- `GET http://127.0.0.1:3001/api/placements`: public, filtered, paginated catalogue.
-- `GET http://127.0.0.1:3001/api/placements/{id}`: public open placement details.
-- `http://127.0.0.1:3001/?view=Opportunities`: frontend catalogue.
-- `http://127.0.0.1:3001/opportunities/{id}`: shareable human-readable details.
+- `GET http://localhost:3000/api/placements`: public, filtered, paginated catalogue.
+- `GET http://localhost:3000/api/placements/{id}`: public open placement details.
+- `http://localhost:3000/?view=Opportunities`: frontend catalogue.
+- `http://localhost:3000/opportunities/{id}`: shareable human-readable details.
 
 The persistent local database is at `web/.data/placements`, ignored by Git.
 Setup is idempotent and preserves edited fixtures. For hosted PostgreSQL, apply
