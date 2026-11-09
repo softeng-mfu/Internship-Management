@@ -1,0 +1,45 @@
+
+> team17-integration@0.1.0 build
+> next build
+
+▲ Next.js 16.4.5 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.ts took 16ms
+- Experiments (use with caution):
+  · cpus: 2
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 287ms
+  Running TypeScript ...
+  Finished TypeScript in 344ms ...
+  Collecting page data using 2 workers ...
+  Generating static pages using 2 workers (0/5) ...
+  Generating static pages using 2 workers (1/5)
+  Generating static pages using 2 workers (2/5)
+  Generating static pages using 2 workers (3/5)
+✓ Generating static pages using 2 workers (5/5) in 74ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /advisor
+├ ƒ /api/auth/[...all]
+├ ƒ /api/identity/claims
+├ ƒ /api/integration/activity
+├ ƒ /api/integration/partner-status
+├ ƒ /api/integration/status
+├ ƒ /api/integration/status-events
+├ ƒ /api/jobs
+├ ƒ /api/jobs/[id]
+├ ƒ /api/placements
+├ ƒ /api/placements/[id]
+├ ƒ /api/webhooks/partner
+├ ƒ /api/workspace
+├ ƒ /opportunities/[id]
+├ ○ /sign-in
+└ ƒ /workspace
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

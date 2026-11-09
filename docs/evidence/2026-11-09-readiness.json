@@ -1,0 +1,76 @@
+{
+  "auditDate": "2026-11-09",
+  "timezone": "Asia/Bangkok",
+  "sourceCommit": "64e6b69",
+  "method": "Unauthenticated read-only HTTP requests from Node.js; no live user data submitted, no deployment or remote migrations performed.",
+  "publicChecksAtUTC": "2026-11-09T16:39:26.161Z",
+  "cloudBaseURL": "https://team17-internship.vercel.app",
+  "cloudHTTPStatuses": {
+    "/": 200,
+    "/sign-in": 200,
+    "/api/integration/status": 200,
+    "/api/placements": 200,
+    "/api/jobs": 404,
+    "/api/auth/get-session": 200,
+    "/workspace": 404,
+    "/advisor": 404,
+    "/api/workspace": 404
+  },
+  "publicPlacementsReturned": 6,
+  "homeResponseHeaders": {
+    "hsts": true,
+    "contentSecurityPolicy": false,
+    "xFrameOptions": null,
+    "xContentTypeOptions": null
+  },
+  "productionPartnerConsumption": {
+    "url": "https://team17-internship.vercel.app/api/integration/partner-status",
+    "httpStatus": 200,
+    "success": true,
+    "requestedAtUTC": "2026-11-09T16:40:05.845Z",
+    "partnerTeam": "pod5-alumni-network",
+    "partnerStatus": "ok"
+  },
+  "partnerAvailability": {
+    "team18JobBoard": {
+      "httpStatus": 200,
+      "returnedRecords": 27
+    },
+    "alumniStatus": {
+      "httpStatus": 200
+    },
+    "studentIdentityHomepage": {
+      "httpStatus": 200,
+      "note": "Homepage availability does not verify student credentials or claims consent."
+    }
+  },
+  "localJobBoardAdapter": {
+    "url": "http://localhost:3000/api/jobs?limit=1",
+    "httpStatus": 200,
+    "success": true,
+    "returnedRecords": 1,
+    "source": "team18-job-board"
+  },
+  "tests": {
+    "total": 35,
+    "pass": 35,
+    "fail": 0,
+    "skipped": 0
+  },
+  "productionBuild": "passed",
+  "npmAuditVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "limits": [
+    "Cloud account configuration, deployment commit and persistent database settings were not inspected.",
+    "No authenticated cloud student/advisor happy path was run.",
+    "Human manual testing, attendance, partner coordination and individual code understanding cannot be certified by automated checks.",
+    "No outgoing webhook was sent in this audit.",
+    "Public HTTP results are point-in-time observations."
+  ]
+}

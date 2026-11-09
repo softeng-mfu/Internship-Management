@@ -1,0 +1,10 @@
+Command: npm test
+Runtime: Node.js 24
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4845.898
