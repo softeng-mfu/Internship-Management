@@ -16,6 +16,7 @@ export function activityDatabase() {
       rejectUnauthorized: true,
     },
     max: 2,
+    prepare: false,
     connect_timeout: 8,
     idle_timeout: 20,
     connection: {
