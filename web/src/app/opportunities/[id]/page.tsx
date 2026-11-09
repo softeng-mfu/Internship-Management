@@ -1,3 +1,4 @@
+import { getJob } from "@/lib/job-board";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlacement } from "@/lib/placements-service";
@@ -11,11 +12,18 @@ export default async function Opportunity({
 }) {
   const { id } = await params;
   const origin = process.env.PUBLIC_SITE_URL || "http://127.0.0.1:3001";
-  const response = await getPlacement(
-    new Request(new URL("/api/placements/" + encodeURIComponent(id), origin)),
-    id,
-    placementsDatabase,
+  const request = new Request(
+    new URL("/api/jobs/" + encodeURIComponent(id), origin),
   );
+  const response = id.startsWith("jobboard-")
+    ? await getJob(request, id)
+    : await getPlacement(
+        new Request(
+          new URL("/api/placements/" + encodeURIComponent(id), origin),
+        ),
+        id,
+        placementsDatabase,
+      );
   if (response.status === 404 || response.status === 400) notFound();
   const body = await response.json();
   if (!response.ok)
@@ -73,41 +81,68 @@ export default async function Opportunity({
         <div className="detail-facts">
           <div>
             <small>WORK ARRANGEMENT</small>
-            <strong>{p.work_mode}</strong>
+            <strong>
+              {p.work_mode === "unspecified" ? "Not specified" : p.work_mode}
+            </strong>
           </div>
           <div>
             <small>APPLICATION DEADLINE</small>
             <strong>
-              {new Date(
-                p.application_deadline + "T12:00:00",
-              ).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              {p.application_deadline
+                ? new Date(
+                    p.application_deadline + "T12:00:00",
+                  ).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "Not specified"}
             </strong>
           </div>
           <div>
-            <small>MONTHLY ALLOWANCE</small>
+            <small>
+              {p.source === "team18-job-board"
+                ? "ALLOWANCE / SALARY"
+                : "MONTHLY ALLOWANCE"}
+            </small>
             <strong>
-              {p.allowance_thb === null
-                ? "Not specified"
-                : `฿${p.allowance_thb.toLocaleString()}`}
+              {p.salary_text ||
+                (p.allowance_thb === null
+                  ? "Not specified"
+                  : `฿${p.allowance_thb.toLocaleString()}`)}
             </strong>
           </div>
           <div>
             <small>DURATION</small>
-            <strong>{p.duration_weeks} weeks</strong>
+            <strong>
+              {p.duration_weeks === null
+                ? "Not specified"
+                : `${p.duration_weeks} weeks`}
+            </strong>
           </div>
         </div>
         <h2>About the opportunity</h2>
         <p className="opportunity-description">{p.description}</p>
+        {[
+          ["Required skills", p.required_skills],
+          ["Responsibilities", p.responsibilities],
+          ["Qualifications", p.qualifications],
+          ["Benefits", p.benefits],
+        ].map(([heading, text]) =>
+          text ? (
+            <section key={heading}>
+              <h2>{heading}</h2>
+              <p className="opportunity-description">{text}</p>
+            </section>
+          ) : null,
+        )}
         <aside className="demo-note">
           {p.is_demo
-            ? "This is a fictional demonstration listing stored in the database. It is not a real vacancy or company offer. "
+            ? "This is a fictional demonstration listing. It is not a real vacancy or company offer. "
             : ""}
-          Sign in with your student identity to submit an application and follow
-          its review in your workspace.
+          Sign in with your student identity to submit an application in
+          Internly and follow its advisor review. This does not submit an
+          application to the external Job Board.
         </aside>
         <div className="detail-actions">
           <Link

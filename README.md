@@ -51,6 +51,16 @@ The catalogue includes fictional database fixtures labeled `is_demo=true` and
 displayed as Sample listing. See [the workflow guide](docs/STUDENT_ADVISOR_WORKFLOW.md)
 for local setup, advisor registration, assignments and production migration needs.
 
+## Team 18 Job Board integration
+
+The unified Opportunities tab reads Team 18's public Job Board through `GET /api/jobs`.
+Partner details use `GET /api/jobs/{id}` and `/opportunities/jobboard-{id}`.
+Open, unexpired internships are normalized with unknown salary, duration and deadline
+fields preserved. No partner credentials or student records are sent to these read
+endpoints. See [the Job Board integration guide](docs/JOB_BOARD_INTEGRATION.md).
+Internly application submissions are stored in our workspace database and reviewed
+by assigned advisors; they are not submitted to the external Job Board.
+
 ## Team 12 public opportunities API
 
 See the [handover guide](docs/handover/README.md),

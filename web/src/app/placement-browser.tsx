@@ -35,7 +35,7 @@ export default function PlacementBrowser({ compact = false, onApply }: Props) {
           if (location.trim()) params.set("location", location.trim());
           if (category) params.set("category", category);
           if (mode) params.set("work_mode", mode);
-          const response = await fetch("/api/placements?" + params, {
+          const response = await fetch("/api/jobs?" + params, {
             signal: controller.signal,
             cache: "no-store",
           });
@@ -90,7 +90,7 @@ export default function PlacementBrowser({ compact = false, onApply }: Props) {
               onChange={(e) => filter(() => setCategory(e.target.value))}
             >
               <option value="">All categories</option>
-              {Object.keys(tones).map((c) => (
+              {(data?.meta.categories || Object.keys(tones)).map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
@@ -167,7 +167,10 @@ export default function PlacementBrowser({ compact = false, onApply }: Props) {
                 {p.title}
               </Link>
               <p className="location">
-                {p.location} · {p.work_mode}
+                {p.location} ·{" "}
+                {p.work_mode === "unspecified"
+                  ? "Arrangement not specified"
+                  : p.work_mode}
               </p>
               <div className="tags">
                 {p.skills.map((skill) => (
@@ -175,20 +178,24 @@ export default function PlacementBrowser({ compact = false, onApply }: Props) {
                 ))}
               </div>
               <p className="deadline">
-                Apply by{" "}
-                {new Date(
-                  p.application_deadline + "T12:00:00",
-                ).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
+                {p.application_deadline
+                  ? "Apply by "
+                  : "Deadline not specified"}
+                {p.application_deadline &&
+                  new Date(
+                    p.application_deadline + "T12:00:00",
+                  ).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
               </p>
               <div className="job-card-bottom">
                 <span>
-                  {p.allowance_thb === null
-                    ? "Allowance not specified"
-                    : `฿${p.allowance_thb.toLocaleString()} / month`}
+                  {p.salary_text ||
+                    (p.allowance_thb === null
+                      ? "Allowance not specified"
+                      : `฿${p.allowance_thb.toLocaleString()} / month`)}
                 </span>
                 {onApply ? (
                   <button className="text-button" onClick={() => onApply(p)}>

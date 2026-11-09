@@ -132,7 +132,7 @@ export default function Portal({
   useEffect(() => {
     if (data?.role !== "student") return;
     const controller = new AbortController();
-    fetch("/api/placements?limit=50", { signal: controller.signal })
+    fetch("/api/jobs?limit=50", { signal: controller.signal })
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -145,11 +145,16 @@ export default function Portal({
     if (
       data?.role !== "student" ||
       !initialPlacement ||
-      !/^[0-9a-f-]{36}$/i.test(initialPlacement)
+      !/^(?:[0-9a-f-]{36}|jobboard-[1-9]\d{0,9})$/i.test(initialPlacement)
     )
       return;
     const controller = new AbortController();
-    fetch("/api/placements/" + initialPlacement, { signal: controller.signal })
+    fetch(
+      (initialPlacement.startsWith("jobboard-")
+        ? "/api/jobs/"
+        : "/api/placements/") + initialPlacement,
+      { signal: controller.signal },
+    )
       .then(async (response) => {
         const body = await response.json();
         if (!response.ok)

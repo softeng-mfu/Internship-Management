@@ -5,6 +5,7 @@ import { workspaceStore, type Actor } from "@/lib/workspace";
 import { ApiError, json, failure, readBody } from "@/lib/core";
 import { getPlacement } from "@/lib/placements-service";
 import { placementsDatabase } from "@/lib/placements-db";
+import { getJob } from "@/lib/job-board";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 async function actor(request: Request) {
@@ -46,7 +47,10 @@ export async function POST(request: Request) {
       const input = z
         .object({
           action: z.literal("apply"),
-          placementId: z.string().uuid(),
+          placementId: z.union([
+            z.string().uuid(),
+            z.string().regex(/^jobboard-[1-9]\d{0,9}$/),
+          ]),
           statement: z.string().trim().min(20).max(5000),
         })
         .strict()
@@ -57,17 +61,24 @@ export async function POST(request: Request) {
           "INVALID_APPLICATION",
           "Select an opportunity and write at least 20 characters.",
         );
-      const response = await getPlacement(
-        new Request(
-          new URL("/api/placements/" + input.data.placementId, request.url),
-        ),
-        input.data.placementId,
-        placementsDatabase,
-      );
+      const response = input.data.placementId.startsWith("jobboard-")
+        ? await getJob(
+            new Request(
+              new URL("/api/jobs/" + input.data.placementId, request.url),
+            ),
+            input.data.placementId,
+          )
+        : await getPlacement(
+            new Request(
+              new URL("/api/placements/" + input.data.placementId, request.url),
+            ),
+            input.data.placementId,
+            placementsDatabase,
+          );
       const result = await response.json();
       if (!response.ok)
         throw new ApiError(
-          404,
+          response.status === 404 || response.status === 400 ? 404 : 503,
           "PLACEMENT_UNAVAILABLE",
           "This opportunity is not available.",
         );
