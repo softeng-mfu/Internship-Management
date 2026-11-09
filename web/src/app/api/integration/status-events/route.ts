@@ -1,12 +1,10 @@
-import { ApiError, createPartnerWebhook, eventSchema, failure, json, partnerRequest, readBody, required, secretMatches } from "@/lib/core";
+import { ApiError, createPartnerWebhook, eventSchema, failure, json, partnerRequest, readBody, required } from "@/lib/core";
+import { requireOperator } from "@/lib/auth";
 import { rpc, log } from "@/lib/store";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
-    const token = required("INTEGRATION_ADMIN_TOKEN");
-    if (token.length < 32) throw new ApiError(503, "CONFIGURATION_INVALID", "Operator token must have at least 32 characters.");
-    if (!secretMatches(request.headers.get("Authorization"), "Bearer " + token))
-      throw new ApiError(401, "UNAUTHORIZED", "An operator bearer token is required.");
+    requireOperator(request);
     const key = request.headers.get("Idempotency-Key");
     if (!key || !/^[a-zA-Z0-9._:-]{1,128}$/.test(key))
       throw new ApiError(400, "MISSING_IDEMPOTENCY_KEY", "Provide an Idempotency-Key of 1-128 safe characters.");
