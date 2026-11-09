@@ -1,0 +1,531 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Team 17 Public Internship Opportunities API",
+    "version": "1.0.0",
+    "description": "Verified locally. Public HTTPS deployment pending. Fictional records are labeled is_demo=true. No private student data."
+  },
+  "servers": [
+    {
+      "url": "https://team17-internship.vercel.app",
+      "description": "Verified production deployment"
+    },
+    {
+      "url": "http://127.0.0.1:3001",
+      "description": "Local development"
+    }
+  ],
+  "security": [],
+  "paths": {
+    "/api/placements": {
+      "get": {
+        "operationId": "listPlacements",
+        "summary": "List published open internships",
+        "description": "Deadline is inclusive in Asia/Bangkok. Ordered by deadline then UUID. Unknown and repeated query parameters return 400.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000,
+              "default": 1
+            },
+            "description": "One-based page"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 12
+            },
+            "description": "Page size"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open"
+              ],
+              "default": "open"
+            },
+            "description": "Public availability"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Literal case-insensitive substring in title, company, description or skills"
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Literal case-insensitive location substring"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "description": "Case-insensitive exact category"
+          },
+          {
+            "name": "work_mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "remote",
+                "hybrid",
+                "on-site"
+              ]
+            },
+            "description": "Work arrangement"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful public response",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": "Correlation identifier also returned in meta.request_id"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_QUERY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "PLACEMENTS_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/placements/{id}": {
+      "get": {
+        "operationId": "getPlacement",
+        "summary": "Get one public open internship",
+        "description": "No query parameters. Hidden records also return 404.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful public response",
+            "headers": {
+              "X-Request-Id": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": "Correlation identifier also returned in meta.request_id"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_ID or INVALID_QUERY",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "PLACEMENT_NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "PLACEMENTS_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "company",
+          "description",
+          "location",
+          "category",
+          "work_mode",
+          "skills",
+          "allowance_thb",
+          "duration_weeks",
+          "application_deadline",
+          "status",
+          "is_demo",
+          "published_at",
+          "updated_at",
+          "details_url"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "work_mode": {
+            "type": "string",
+            "enum": [
+              "remote",
+              "hybrid",
+              "on-site"
+            ]
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowance_thb": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "duration_weeks": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 104
+          },
+          "application_deadline": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "const": "open"
+          },
+          "is_demo": {
+            "type": "boolean"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "details_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "required": [
+          "api_version",
+          "request_id",
+          "timestamp",
+          "data_source"
+        ],
+        "properties": {
+          "api_version": {
+            "type": "string",
+            "const": "1.0"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_source": {
+            "type": "string",
+            "enum": [
+              "local-postgresql",
+              "postgresql"
+            ]
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "total_pages",
+          "has_next"
+        ],
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ListResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "pagination",
+          "meta"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Placement"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "example": {
+          "success": true,
+          "data": [
+            {
+              "id": "10000000-0000-4000-8000-000000000001",
+              "title": "Product Design Intern",
+              "skills": [
+                "Figma",
+                "UI/UX",
+                "Prototyping"
+              ],
+              "status": "open",
+              "company": "Sample Studio",
+              "is_demo": true,
+              "category": "Design",
+              "location": "Bangkok, Thailand",
+              "work_mode": "hybrid",
+              "updated_at": "2026-11-07T11:56:20.628Z",
+              "description": "Practice user research and turn ideas into thoughtful, accessible prototypes with a design mentor.",
+              "published_at": "2026-11-07T11:56:20.628Z",
+              "allowance_thb": 12000,
+              "duration_weeks": 12,
+              "application_deadline": "2027-02-05",
+              "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000001"
+            }
+          ],
+          "pagination": {
+            "page": 1,
+            "limit": 1,
+            "total": 6,
+            "total_pages": 6,
+            "has_next": true
+          },
+          "meta": {
+            "api_version": "1.0",
+            "request_id": "e57223c9-02d4-480b-82ec-1fd534aff03f",
+            "timestamp": "2026-11-07T15:41:02.941Z",
+            "data_source": "postgresql"
+          }
+        }
+      },
+      "DetailResponse": {
+        "type": "object",
+        "required": [
+          "success",
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/Placement"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "example": {
+          "success": true,
+          "data": {
+            "id": "10000000-0000-4000-8000-000000000001",
+            "title": "Product Design Intern",
+            "company": "Sample Studio",
+            "description": "Practice user research and turn ideas into thoughtful, accessible prototypes with a design mentor.",
+            "location": "Bangkok, Thailand",
+            "category": "Design",
+            "work_mode": "hybrid",
+            "skills": [
+              "Figma",
+              "UI/UX",
+              "Prototyping"
+            ],
+            "allowance_thb": 12000,
+            "duration_weeks": 12,
+            "application_deadline": "2027-02-05",
+            "status": "open",
+            "is_demo": true,
+            "published_at": "2026-11-07T11:56:20.000Z",
+            "updated_at": "2026-11-07T11:56:20.000Z",
+            "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000001"
+          },
+          "meta": {
+            "api_version": "1.0",
+            "request_id": "695a97d1-b760-40b4-9b69-6518d018340d",
+            "timestamp": "2026-11-07T15:41:04.870Z",
+            "data_source": "postgresql"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "success",
+          "error",
+          "meta"
+        ],
+        "properties": {
+          "success": {
+            "const": false
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "retryable"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "INVALID_QUERY",
+                  "INVALID_ID",
+                  "PLACEMENT_NOT_FOUND",
+                  "PLACEMENTS_UNAVAILABLE"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "retryable": {
+                "type": "boolean"
+              }
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        }
+      }
+    }
+  }
+}

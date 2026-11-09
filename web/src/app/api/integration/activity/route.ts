@@ -1,11 +1,11 @@
 import { failure, json } from "@/lib/core";
-import { requireOperator } from "@/lib/auth";
+import { requireAccount } from "@/lib/admin-access";
 import { activityDatabase } from "@/lib/activity";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
-    requireOperator(request, "Enter your operator token to view integration activity.");
+    await requireAccount(request);
     const sql = activityDatabase();
     const [counts, events, receipts, logs] = await Promise.all([
       sql`select 'events' as kind, count(*)::int as count from public.a5_status_events union all select 'receipts', count(*)::int from public.a5_webhook_receipts union all select 'logs', count(*)::int from public.a5_integration_logs`,

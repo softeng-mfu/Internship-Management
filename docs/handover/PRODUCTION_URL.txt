@@ -1,0 +1,4 @@
+https://team17-internship.vercel.app/api/placements
+Method: GET
+Authentication: none
+Data: six fictional demonstration listings

@@ -18,6 +18,7 @@ Start with the [implementation guide](docs/IMPLEMENTATION_A5.md). Record live te
 ```powershell
 cd web
 npm ci
+npm run placements:setup
 npm run dev
 ```
 
@@ -42,8 +43,37 @@ Review staged files before committing. These commands publish the existing histo
 
 The homepage contains the Internly student dashboard, searchable opportunities,
 saved listings, an application tracker, weekly reports, and an advisor preview.
-Internship listings and workflow actions are clearly labeled samples. Sample
-changes persist in browser local storage and do not write to Supabase.
+Opportunities, recommendations, and shareable detail pages read from the placements
+API. Local PostgreSQL contains six fictional records labeled `is_demo=true`.
+Saved IDs persist in the browser. Application, advisor, and weekly-report actions
+remain clearly labeled browser demos and do not write to Supabase.
+
+## Team 12 public opportunities API
+
+See the [handover guide](docs/handover/README.md),
+[OpenAPI contract](docs/handover/placements.openapi.json), and
+[Postman collection](docs/handover/placements.postman_collection.json).
+
+Configure `.env.local` inside `web` with `PLACEMENTS_DB_MODE=local` and
+`PUBLIC_SITE_URL=http://127.0.0.1:3001`. Run the following from `web` while the
+server is stopped for setup; no remote database is modified:
+
+```powershell
+npm run placements:setup
+npm run dev -- --hostname 127.0.0.1 --port 3001
+```
+
+- `GET http://127.0.0.1:3001/api/placements`: public, filtered, paginated catalogue.
+- `GET http://127.0.0.1:3001/api/placements/{id}`: public open placement details.
+- `http://127.0.0.1:3001/?view=Opportunities`: frontend catalogue.
+- `http://127.0.0.1:3001/opportunities/{id}`: shareable human-readable details.
+
+The persistent local database is at `web/.data/placements`, ignored by Git.
+Setup is idempotent and preserves edited fixtures. For hosted PostgreSQL, apply
+the new placements migration once, configure `PLACEMENTS_DB_MODE=postgres` and
+a server-only `PLACEMENTS_DATABASE_URL`, and set `PUBLIC_SITE_URL` to the actual
+HTTPS frontend origin. Hosted read connections verify TLS. The public API exposes
+only published, open, unexpired opportunities. Production handover remains pending.
 
 ### Live integration activity
 

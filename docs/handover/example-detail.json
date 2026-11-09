@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "data": {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "title": "Product Design Intern",
+    "company": "Sample Studio",
+    "description": "Practice user research and turn ideas into thoughtful, accessible prototypes with a design mentor.",
+    "location": "Bangkok, Thailand",
+    "category": "Design",
+    "work_mode": "hybrid",
+    "skills": [
+      "Figma",
+      "UI/UX",
+      "Prototyping"
+    ],
+    "allowance_thb": 12000,
+    "duration_weeks": 12,
+    "application_deadline": "2027-02-05",
+    "status": "open",
+    "is_demo": true,
+    "published_at": "2026-11-07T11:56:20.000Z",
+    "updated_at": "2026-11-07T11:56:20.000Z",
+    "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "api_version": "1.0",
+    "request_id": "695a97d1-b760-40b4-9b69-6518d018340d",
+    "timestamp": "2026-11-07T15:41:04.870Z",
+    "data_source": "postgresql"
+  }
+}

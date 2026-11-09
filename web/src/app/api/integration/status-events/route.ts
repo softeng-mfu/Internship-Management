@@ -1,5 +1,5 @@
 import { ApiError, createPartnerWebhook, eventSchema, failure, json, partnerRequest, readBody, required } from "@/lib/core";
-import { requireOperator } from "@/lib/auth";
+import { requireOperator } from "@/lib/operator-auth";
 import { rpc, log } from "@/lib/store";
 export const runtime = "nodejs";
 export async function POST(request: Request) {

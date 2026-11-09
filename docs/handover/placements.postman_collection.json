@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "Team 17 to Team 12 Internship Opportunities",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Local verified requests. Set base_url to the agreed HTTPS origin before the joint test. No secrets or authentication required."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://team17-internship.vercel.app",
+      "type": "string"
+    },
+    {
+      "key": "placement_id",
+      "value": "10000000-0000-4000-8000-000000000001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "List open opportunities",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements?status=open&page=1&limit=10"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(200); });",
+              "const body = pm.response.json();",
+              "pm.test('Successful API envelope', function () { pm.expect(body.success).to.eql(true); });",
+              "if (Array.isArray(body.data) && body.data.length) pm.collectionVariables.set('placement_id',body.data[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Filter React and remote",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements?q=React&work_mode=remote"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(200); });",
+              "const body = pm.response.json();",
+              "pm.test('Successful API envelope', function () { pm.expect(body.success).to.eql(true); });",
+              "if (Array.isArray(body.data) && body.data.length) pm.collectionVariables.set('placement_id',body.data[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pagination page two",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements?page=2&limit=2"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(200); });",
+              "const body = pm.response.json();",
+              "pm.test('Successful API envelope', function () { pm.expect(body.success).to.eql(true); });",
+              "if (Array.isArray(body.data) && body.data.length) pm.collectionVariables.set('placement_id',body.data[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get placement details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements/{{placement_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(200); });",
+              "const body = pm.response.json();",
+              "pm.test('Successful API envelope', function () { pm.expect(body.success).to.eql(true); });",
+              "if (Array.isArray(body.data) && body.data.length) pm.collectionVariables.set('placement_id',body.data[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid limit",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements?limit=51"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Expected error code', function () { pm.expect(pm.response.json().error.code).to.eql('INVALID_QUERY'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Malformed ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements/not-a-uuid"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(400); });",
+              "pm.test('Expected error code', function () { pm.expect(pm.response.json().error.code).to.eql('INVALID_ID'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing placement",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/placements/00000000-0000-4000-8000-000000000000"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected HTTP status', function () { pm.response.to.have.status(404); });",
+              "pm.test('Expected error code', function () { pm.expect(pm.response.json().error.code).to.eql('PLACEMENT_NOT_FOUND'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

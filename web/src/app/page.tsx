@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import ActivityPanel from "./activity-panel";
+import IdentityPanel from "./identity-panel";
+import PlacementBrowser from "./placement-browser";
+import { authClient } from "@/lib/auth-client";
 type Job = {
   id: number;
   title: string;
@@ -22,7 +25,9 @@ type App = {
   statement: string;
 };
 type Report = { week: number; summary: string; date: string };
-const jobs: Job[] = [
+// Used only by the existing browser-only application and advisor demos.
+// The public catalogue is loaded by PlacementBrowser from /api/placements.
+const demoWorkflowJobs: Job[] = [
   {
     id: 1,
     title: "Product Design Intern",
@@ -139,6 +144,7 @@ const navigation = [
   ["Progress reports", "chart"],
   ["Saved opportunities", "bookmark"],
   ["Integration activity", "spark"],
+  ["Student identity", "users"],
 ];
 function Icon({ name, size = 20 }: { name: string; size?: number }) {
   const p: Record<string, ReactNode> = {
@@ -264,44 +270,52 @@ const dateLabel = (d: string) =>
     month: "short",
   });
 export default function Home() {
+  const { data: session, isPending } = authClient.useSession();
+  const isAdmin = session?.user.role === "admin";
+  const displayName = session?.user.name || "Guest";
+  const initials = session ? displayName.split(/\s+/).slice(0, 2).map(n => n[0]).join("").toUpperCase() : "G";
+  const storageKey = `internly-demo-v2-${session?.user.id || "guest"}`;
   const [view, setView] = useState("Overview"),
-    [saved, setSaved] = useState([2, 6]),
+    [saved, setSaved] = useState<string[]>([]),
     [applications, setApplications] = useState<App[]>(seed),
     [reports, setReports] = useState<Report[]>([]),
-    [loaded, setLoaded] = useState(false),
-    [query, setQuery] = useState(""),
-    [category, setCategory] = useState("All opportunities"),
-    [mode, setMode] = useState("All arrangements"),
+    [loaded, setLoaded] = useState(""),
     [selected, setSelected] = useState<Job | null>(null),
     [modal, setModal] = useState<string | null>(null),
     [toast, setToast] = useState(""),
     [mobile, setMobile] = useState(false),
     [statusFilter, setStatusFilter] = useState("All applications");
   useEffect(() => {
+    if (isPending) return;
+    setSaved([]); setApplications(seed); setReports([]); setModal(null);
     try {
-      const d = JSON.parse(localStorage.getItem("internly-demo-v1") ?? "null");
+      const d = JSON.parse(localStorage.getItem(storageKey) ?? "null");
       if (
         d &&
         Array.isArray(d.saved) &&
         Array.isArray(d.applications) &&
         Array.isArray(d.reports)
       ) {
-        setSaved(d.saved);
+        setSaved(
+          d.saved.filter((id: unknown): id is string => typeof id === "string"),
+        );
         setApplications(d.applications);
         setReports(d.reports);
       }
     } catch {}
-    setLoaded(true);
-  }, []);
+    const requested = new URLSearchParams(window.location.search).get("view");
+    if (navigation.some(([name]) => name === requested)) setView(requested!);
+    setLoaded(storageKey);
+  }, [storageKey, isPending]);
   useEffect(() => {
-    if (loaded)
+    if (loaded === storageKey && !isPending)
       try {
         localStorage.setItem(
-          "internly-demo-v1",
+          storageKey,
           JSON.stringify({ saved, applications, reports }),
         );
       } catch {}
-  }, [loaded, saved, applications, reports]);
+  }, [loaded, storageKey, isPending, saved, applications, reports]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 4000);
@@ -309,69 +323,24 @@ export default function Home() {
   }, [toast]);
   function go(v: string) {
     setView(v);
-    setQuery("");
     setMobile(false);
   }
-  function toggleSave(id: number) {
-    setSaved((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
-  }
-  const approved = applications.find((a) => a.status === "Approved"),
-    approvedJob = jobs.find((j) => j.id === approved?.jobId);
-  const filtered = jobs.filter(
-    (j) =>
-      (view !== "Saved opportunities" || saved.includes(j.id)) &&
-      (category === "All opportunities" || j.category === category) &&
-      (mode === "All arrangements" || j.mode === mode) &&
-      `${j.title} ${j.company} ${j.tags.join(" ")} ${j.location}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
-  );
-  function card(j: Job) {
-    return (
-      <article className="job-card" key={j.id}>
-        <div className="job-card-top">
-          <div className={`company-logo ${j.color}`}>{j.mark}</div>
-          <button
-            className={`save-button ${saved.includes(j.id) ? "is-saved" : ""}`}
-            aria-label={`${saved.includes(j.id) ? "Unsave" : "Save"} ${j.title}`}
-            aria-pressed={saved.includes(j.id)}
-            onClick={() => toggleSave(j.id)}
-          >
-            <Icon name="bookmark" size={19} />
-          </button>
-        </div>
-        <p className="company-name">
-          {j.company}
-          <span> · {j.category}</span>
-        </p>
-        <button className="job-title" onClick={() => setSelected(j)}>
-          {j.title}
-        </button>
-        <p className="location">
-          <Icon name="pin" size={14} />
-          {j.location}
-          <span>·</span>
-          {j.mode}
-        </p>
-        <div className="tags">
-          {j.tags.map((t) => (
-            <span key={t}>{t}</span>
-          ))}
-        </div>
-        <div className="job-card-bottom">
-          <span>{j.pay}</span>
-          <button aria-label={`View ${j.title}`} onClick={() => setSelected(j)}>
-            <Icon name="arrow" size={19} />
-          </button>
-        </div>
-      </article>
+  function toggleSave(id: string) {
+    setSaved((s) =>
+      s.includes(id)
+        ? s.filter((x) => x !== id)
+        : s.length < 50
+          ? [...s, id]
+          : s,
     );
   }
+  const approved = applications.find((a) => a.status === "Approved"),
+    approvedJob = demoWorkflowJobs.find((j) => j.id === approved?.jobId);
   function table(limit?: number) {
     const items = applications
       .filter(
         (a) =>
-          jobs.some((j) => j.id === a.jobId) &&
+          demoWorkflowJobs.some((j) => j.id === a.jobId) &&
           (view === "Overview" ||
             statusFilter === "All applications" ||
             a.status === statusFilter),
@@ -390,7 +359,7 @@ export default function Home() {
           </thead>
           <tbody>
             {items.map((a) => {
-              const j = jobs.find((j) => j.id === a.jobId)!;
+              const j = demoWorkflowJobs.find((j) => j.id === a.jobId)!;
               return (
                 <tr key={a.id}>
                   <td>
@@ -496,10 +465,10 @@ export default function Home() {
             <Icon name="arrow" size={16} />
           </button>
           <button className="profile" onClick={() => setModal("profile")}>
-            <span className="avatar">NZ</span>
+            <span className="avatar">{initials}</span>
             <span>
-              <strong>Nadi Zeya</strong>
-              <small>Student workspace</small>
+              <strong>{isPending ? "Loading…" : displayName}</strong>
+              <small>{isAdmin ? "Administrator" : session ? "Student workspace" : "Sign in to your workspace"}</small>
             </span>
             <Icon name="down" size={16} />
           </button>
@@ -528,6 +497,7 @@ export default function Home() {
             <strong>{view}</strong>
           </div>
           <div className="topbar-right">
+            {!session && !isPending && <a className="text-button" href="/sign-in">Sign in</a>}
             <span className="demo-badge">
               <i />
               {view === "Integration activity"
@@ -547,7 +517,7 @@ export default function Home() {
               aria-label="Open profile"
               onClick={() => setModal("profile")}
             >
-              NZ
+              {initials}
             </button>
           </div>
         </header>
@@ -560,7 +530,7 @@ export default function Home() {
               </h1>
               <p>
                 {view === "Overview"
-                  ? "Welcome back, Nadi. Let’s make your next move a meaningful one."
+                  ? `Welcome, ${displayName.split(" ")[0]}. Let’s make your next move a meaningful one.`
                   : view === "Opportunities"
                     ? "Find a place to learn, contribute, and become who you want to be."
                     : view === "My applications"
@@ -743,81 +713,17 @@ export default function Home() {
                     Explore all <Icon name="arrow" size={16} />
                   </button>
                 </div>
-                <div className="job-grid">{jobs.slice(0, 3).map(card)}</div>
+                <PlacementBrowser compact saved={saved} onSave={toggleSave} />
               </section>
             </>
           )}
           {["Opportunities", "Saved opportunities"].includes(view) && (
-            <>
-              <div className="filter-bar">
-                <label className="search-field">
-                  <Icon name="search" size={19} />
-                  <input
-                    aria-label="Search opportunities"
-                    placeholder="Search roles, companies, or skills..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                </label>
-                <select
-                  aria-label="Category"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {[
-                    "All opportunities",
-                    "Design",
-                    "Engineering",
-                    "Marketing",
-                    "Data",
-                  ].map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-                <select
-                  aria-label="Work arrangement"
-                  value={mode}
-                  onChange={(e) => setMode(e.target.value)}
-                >
-                  {["All arrangements", "Remote", "Hybrid", "On-site"].map(
-                    (c) => (
-                      <option key={c}>{c}</option>
-                    ),
-                  )}
-                </select>
-              </div>
-              <div className="results-heading">
-                <span>
-                  <strong>{filtered.length}</strong> opportunities to explore
-                </span>
-                <span>Sample listings · Not accepting real applications</span>
-              </div>
-              {filtered.length ? (
-                <div className="job-grid listing-grid">
-                  {filtered.map(card)}
-                </div>
-              ) : (
-                <div className="empty">
-                  <Icon name="search" size={32} />
-                  <h3>A fresh search might help.</h3>
-                  <p>
-                    Try another skill or filter, or save an opportunity to find
-                    it here.
-                  </p>
-                  <button
-                    className="secondary"
-                    onClick={() => {
-                      setQuery("");
-                      setCategory("All opportunities");
-                      setMode("All arrangements");
-                      if (view === "Saved opportunities") go("Opportunities");
-                    }}
-                  >
-                    Explore all opportunities
-                  </button>
-                </div>
-              )}
-            </>
+            <PlacementBrowser
+              key={view}
+              savedOnly={view === "Saved opportunities"}
+              saved={saved}
+              onSave={toggleSave}
+            />
           )}
           {view === "My applications" && (
             <section className="full-panel">
@@ -928,7 +834,7 @@ export default function Home() {
                     ["Submitted", "Under review"].includes(a.status),
                   )
                   .map((a) => {
-                    const j = jobs.find((j) => j.id === a.jobId);
+                    const j = demoWorkflowJobs.find((j) => j.id === a.jobId);
                     return (
                       j && (
                         <article className="review-item" key={a.id}>
@@ -937,7 +843,7 @@ export default function Home() {
                           </div>
                           <div>
                             <h3>{j.title}</h3>
-                            <p>Nadi Zeya · {j.company}</p>
+                            <p>{displayName} · {j.company}</p>
                             <p className="statement">“{a.statement}”</p>
                             <div className="review-actions">
                               <button
@@ -987,7 +893,10 @@ export default function Home() {
               )}
             </section>
           )}
-          {view === "Integration activity" && <ActivityPanel />}
+          {view === "Integration activity" && session && <ActivityPanel key={session.user.id} />}
+          {view === "Student identity" && session && <IdentityPanel key={session.user.id} />}
+          {view === "Integration activity" && !session && <section className="full-panel"><h2>Sign in to your workspace</h2><p>Use your normal account to view integration activity.</p><a className="primary" href="/sign-in">Sign in</a></section>}
+          {view === "Student identity" && !session && <section className="full-panel"><h2>Sign in to your workspace</h2><p>Use your normal account to request consented student claims.</p><a className="primary" href="/sign-in">Sign in</a></section>}
           <footer>
             <span>
               <b>internly.</b>A little direction. A world of possibility.
@@ -995,7 +904,7 @@ export default function Home() {
             <span>
               {view === "Integration activity"
                 ? "Live records · Read-only operator access"
-                : "Sample data · Changes saved in this browser only"}
+                : "Listings from database · Application workflows are browser demos"}
             </span>
           </footer>
         </main>
@@ -1196,8 +1105,8 @@ export default function Home() {
             </div>
           ))}
           <p className="demo-note">
-            Live accounts and internship database workflows are not connected
-            yet. All listings and application actions are samples.
+            Student accounts and application workflows are not connected yet.
+            All listings and application actions are samples.
           </p>
         </Modal>
       )}
@@ -1233,12 +1142,17 @@ export default function Home() {
       {modal === "profile" && (
         <Modal title="Your workspace" onClose={() => setModal(null)}>
           <div className="profile-detail">
-            <span className="avatar">NZ</span>
+            <span className="avatar">{initials}</span>
             <div>
-              <h3>Nadi Zeya</h3>
-              <p>Student · Internship Management</p>
+              <h3>{displayName}</h3>
+              <p>{session?.user.email || "Browse opportunities or sign in to your account."}</p>
             </div>
           </div>
+          {session ? <button className="secondary" onClick={async () => {
+            const result = await authClient.signOut();
+            if (result.error) { setToast("Unable to sign out. Please try again."); return; }
+            window.location.assign("/sign-in");
+          }}>Sign out</button> : <a className="primary" href="/sign-in">Sign in / Create account</a>}
           <p className="demo-note">
             This is a sample workspace. The advisor preview demonstrates
             reviewing sample applications and grants no access to real student
@@ -1256,10 +1170,20 @@ export default function Home() {
               : "Explore advisor preview"}
             <Icon name="arrow" size={17} />
           </button>
-          <button className="text-button" style={{ display: "flex", marginTop: 22 }} onClick={() => {
-            setApplications(seed); setSaved([2, 6]); setReports([]);
-            setModal(null); go("Overview"); setToast("Sample workspace restored to its starting point.");
-          }}>Reset sample workspace</button>
+          <button
+            className="text-button"
+            style={{ display: "flex", marginTop: 22 }}
+            onClick={() => {
+              setApplications(seed);
+              setSaved([]);
+              setReports([]);
+              setModal(null);
+              go("Overview");
+              setToast("Sample workspace restored to its starting point.");
+            }}
+          >
+            Reset sample workspace
+          </button>
         </Modal>
       )}
       <div className={`toast ${toast ? "visible" : ""}`} role="status">
