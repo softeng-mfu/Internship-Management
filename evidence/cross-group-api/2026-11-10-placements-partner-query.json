@@ -1,0 +1,73 @@
+{
+  "request": "GET https://team17-internship.vercel.app/api/placements?status=open&page=1&limit=5&category=Engineering",
+  "purpose": "Re-run of the exact query Team 19 reported consuming; this is OUR re-run, not Team 19's request.",
+  "http_status": 200,
+  "captured_at_utc": "2026-11-09T17:33:37Z",
+  "x_request_id": "3daeb7bb-1046-4d4d-a506-7cc5002ed35e",
+  "cors": {
+    "access_control_allow_origin": "*",
+    "access_control_expose_headers": "X-Request-Id"
+  },
+  "response": {
+    "success": true,
+    "data": [
+      {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "title": "Frontend Developer Intern",
+        "skills": [
+          "React",
+          "Next.js",
+          "TypeScript"
+        ],
+        "status": "open",
+        "company": "Sample Web Lab",
+        "is_demo": true,
+        "category": "Engineering",
+        "location": "Remote",
+        "work_mode": "remote",
+        "updated_at": "2026-11-07T11:56:20.628Z",
+        "description": "Learn to build accessible web interfaces, review code, and develop a mentored frontend project.",
+        "published_at": "2026-11-07T11:56:20.628Z",
+        "allowance_thb": 15000,
+        "duration_weeks": 12,
+        "application_deadline": "2027-02-05",
+        "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000002"
+      },
+      {
+        "id": "10000000-0000-4000-8000-000000000004",
+        "title": "Software Engineering Intern",
+        "skills": [
+          "JavaScript",
+          "SQL",
+          "APIs"
+        ],
+        "status": "open",
+        "company": "Sample Systems",
+        "is_demo": true,
+        "category": "Engineering",
+        "location": "Bangkok, Thailand",
+        "work_mode": "hybrid",
+        "updated_at": "2026-11-07T11:56:20.628Z",
+        "description": "Practice API design, database queries, and testing through a small, supported engineering project.",
+        "published_at": "2026-11-07T11:56:20.628Z",
+        "allowance_thb": 18000,
+        "duration_weeks": 12,
+        "application_deadline": "2027-02-05",
+        "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000004"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 5,
+      "total": 2,
+      "total_pages": 1,
+      "has_next": false
+    },
+    "meta": {
+      "api_version": "1.0",
+      "request_id": "3daeb7bb-1046-4d4d-a506-7cc5002ed35e",
+      "timestamp": "2026-11-09T17:33:36.226Z",
+      "data_source": "postgresql"
+    }
+  }
+}

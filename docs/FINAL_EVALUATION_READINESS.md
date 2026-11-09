@@ -4,6 +4,8 @@ Audited 9 November 2026 (Asia/Bangkok), against commit `64e6b69`, the supplied e
 
 **Overall: not ready for final evaluation yet.** Core workflows pass local automated tests, and a public deployment exists, but the current student/advisor workflow is missing from that deployment. Privacy controls and evaluation evidence also need work.
 
+> **Update 10 November 2026:** see [Recheck — 10 November 2026](#recheck--10-november-2026) at the end. The four missing cloud routes are now deployed; the overall status is still **not ready** because the cloud happy-path evidence is pending. The observations below are the original 9 November audit, kept unchanged.
+
 Evidence: [HTTP and audit results](evidence/2026-11-09-readiness.json), [test summary](evidence/2026-11-09-tests.txt), [production build output](evidence/2026-11-09-build.txt). These are actual observed results, not planned results. No production deployment, remote database migration, personal-data lookup, or outgoing webhook was performed during this audit.
 
 ## 1. System completion and cloud deployment — incomplete
@@ -169,3 +171,27 @@ The announcement's minimum integration requirement and the PRD's broader feature
 | 7:00–8:00 | Team contributions, AI-use example, source explanation and redeploy readiness |
 
 Prepare genuine consenting demonstration accounts and available listings beforehand. Keep screenshots as evidence, but perform the actual cloud workflow during evaluation. Do not substitute a mock integration, local-only demonstration or manually preapproved database record for a claimed live action.
+
+## Recheck — 10 November 2026
+
+Rechecked 2026-11-09T17:32Z (10 Nov 00:32 Asia/Bangkok) from repository commit `754ad2a`, branch `final-eval-handover`. Read-only checks only: nothing was deployed, migrated, pushed or sent to partners. The actual evaluation announcement/rubric was **unavailable** to this recheck, so the statement in section 3 that one API-or-webhook integration meets the minimum is carried over unverified.
+
+**Overall: still not ready.** Deployment has moved forward, but the mandatory cloud happy-path evidence is still pending.
+
+| Area | 9 Nov | 10 Nov recheck | Evidence |
+| --- | --- | --- | --- |
+| Cloud routes | `/api/jobs`, `/workspace`, `/advisor`, `/api/workspace` = 404 | **Resolved:** 200 / 307→sign-in / 307→sign-in / 401 (correct for an unauthenticated request) | [routes recheck](evidence/2026-11-10-routes-recheck.txt) |
+| Deployed commit | Not inspected | Still **unknown** (no Vercel access, no GitHub deployment records) | same |
+| Cloud Job Board | 404 | **Resolved:** `/api/jobs` 200, 12 Team 18 listings; detail 200 | [job-board-api](../evidence/job-board-api/README.md) |
+| Team 19 status consumption | 200 | 200, partner status `ok` | [partner-status](../evidence/cross-group-api/2026-11-10-partner-status-response.json) |
+| Team 19 consuming us | not recorded | PARTNER-REPORTED (request `a461ec05-…`, 07:13:44 UTC 9 Nov); our re-run of their query 200 | [partner report](../evidence/cross-group-api/partner-reported-team19.md) |
+| Tests / build / audit | 35/35, pass, 0 | 35/35 (sequential), typecheck + build pass, 0 vulnerabilities (LOCAL, Node 24.18.1) | [tests](evidence/2026-11-10-tests.txt), [build](evidence/2026-11-10-build.txt), [audit](evidence/2026-11-10-audit.txt) |
+| Security findings 1–4 | open | **Still open** (claims route still `requireAccount`; no staff verification; no privacy notice/retention code; live site still lacks CSP/X-Frame-Options/X-Content-Type-Options) | [security-privacy](../evidence/security-privacy/README.md) |
+| Cloud happy path | pending | **Still pending; not observed** | [happy-path](../evidence/happy-path/README.md) |
+| Contributions / AI use | partial | Commit summary added; identities and AI-use rows need team input | [development-process](../evidence/development-process/README.md) |
+
+`docs/DEPLOYMENT_STATUS.md` (7 Nov) is now out of date: placements and the Internly frontend are live. It is left unchanged as a historical record.
+
+New finding: Team 19 asked Team 17 to keep the API online on **10 Nov 13:00–18:00** for their evaluation.
+
+Next actions: [`submission/FINAL_EVALUATION_CHECKLIST.md`](../submission/FINAL_EVALUATION_CHECKLIST.md).

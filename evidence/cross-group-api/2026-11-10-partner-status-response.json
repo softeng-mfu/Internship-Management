@@ -1,0 +1,15 @@
+{
+  "request": "GET https://team17-internship.vercel.app/api/integration/partner-status",
+  "what_it_is": "Our deployed backend calling Team 19 (pod5-alumni-network) status API and returning the result",
+  "http_status": 200,
+  "response": {
+    "success": true,
+    "requested_at": "2026-11-09T17:32:50.223Z",
+    "data": {
+      "partner_team": "pod5-alumni-network",
+      "partner_service": "alumni-network-integration",
+      "partner_status": "ok",
+      "partner_version": "0.1"
+    }
+  }
+}

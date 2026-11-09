@@ -1,0 +1,10 @@
+SEPARATE AVAILABILITY TEST. This is not the request our backend made for the UI.
+
+Request:  GET https://team18-job-board-api.tawee-dev.workers.dev/api/jobs
+From:     local Windows 11 machine (curl), not from Vercel
+Time:     2026-11-09T17:33:37Z (2026-11-10 00:33 Asia/Bangkok), approximately
+Result:   HTTP 200 in 0.49 s
+Body:     not stored (Team 18's data; our normalized copy is in 2026-11-10-list-response.json)
+
+What it proves: Team 18's provider was reachable at that time.
+What it does NOT prove: that our deployed backend called it. That needs a Vercel runtime log (04-provider-call.png, PENDING).

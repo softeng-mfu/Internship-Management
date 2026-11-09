@@ -1,0 +1,19 @@
+Team 17 route recheck - CLOUD - 2026-11-09T17:32:34Z (Bangkok 2026-11-10T00:32 to 00:33 (UTC+7))
+Base: https://team17-internship.vercel.app
+Deployed commit: UNKNOWN - no Vercel access, no GitHub deployment records, no version endpoint. Repo main HEAD at capture = 754ad2a; runtime was previously reported as 64e6b69 (unverified).
+
+ROUTE                              NOW   REDIRECT                                       2026-11-09
+/                                  200   -                                              200
+/sign-in                           200   -                                              200
+/api/jobs                          200   -                                              404
+/api/placements                    200   -                                              200
+/api/integration/status            200   -                                              200
+/api/auth/get-session              200   -                                              200
+/workspace                         307   /sign-in?next=%2Fworkspace                     404
+/advisor                           307   /sign-in                                       404
+/api/workspace                     401   -                                              404
+/api/integration/partner-status    200   -                                              not recorded
+
+Home security headers: {"strict_transport_security":"max-age=63072000; includeSubDomains; preload","content_security_policy":null,"x_frame_options":null,"x_content_type_options":null,"x_powered_by":"Next.js"}
+
+/api/jobs, /workspace, /advisor and /api/workspace were 404 on 2026-11-09 16:39 UTC and now respond (200 / 307->sign-in / 307->sign-in / 401). This indicates a newer release was deployed between the two captures; the exact commit is unknown.

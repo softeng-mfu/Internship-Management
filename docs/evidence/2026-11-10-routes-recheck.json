@@ -1,0 +1,188 @@
+{
+  "capture": "2026-11-10 route recheck",
+  "environment": "CLOUD (public, unauthenticated)",
+  "base_url": "https://team17-internship.vercel.app",
+  "captured_at_utc": "2026-11-09T17:32:34Z",
+  "captured_at_bangkok": "2026-11-10T00:32 to 00:33 (UTC+7)",
+  "method": "curl from a local Windows 11 machine; GET only; no cookies, no credentials, no data submitted",
+  "deployed_commit": "UNKNOWN - no Vercel access, no GitHub deployment records, no version endpoint. Repo main HEAD at capture = 754ad2a; runtime was previously reported as 64e6b69 (unverified).",
+  "home_security_headers": {
+    "strict_transport_security": "max-age=63072000; includeSubDomains; preload",
+    "content_security_policy": null,
+    "x_frame_options": null,
+    "x_content_type_options": null,
+    "x_powered_by": "Next.js"
+  },
+  "change_vs_2026_11_09": "/api/jobs, /workspace, /advisor and /api/workspace were 404 on 2026-11-09 16:39 UTC and now respond (200 / 307->sign-in / 307->sign-in / 401). This indicates a newer release was deployed between the two captures; the exact commit is unknown.",
+  "results": [
+    {
+      "route": "/",
+      "url": "https://team17-internship.vercel.app/",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 3.043357,
+      "x_vercel_id": "sin1::iad1::xrj8m-1794245555898-9e94e7afeea6",
+      "interpretation": "200 OK",
+      "historical_2026_11_09_status": 200,
+      "body_summary": null
+    },
+    {
+      "route": "/sign-in",
+      "url": "https://team17-internship.vercel.app/sign-in",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 0.177123,
+      "x_vercel_id": "sin1::dm64r-1794245559132-8de962610e9c",
+      "interpretation": "200 OK",
+      "historical_2026_11_09_status": 200,
+      "body_summary": null
+    },
+    {
+      "route": "/api/jobs",
+      "url": "https://team17-internship.vercel.app/api/jobs",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 1.638287,
+      "x_vercel_id": "sin1::iad1::q6rf4-1794245559542-17a1ae11e4bf",
+      "interpretation": "200 OK",
+      "historical_2026_11_09_status": 404,
+      "body_summary": {
+        "success": true,
+        "records": 12,
+        "meta": {
+          "request_id": "012affb3-c361-460f-9ccd-74de4fcef976",
+          "timestamp": "2026-11-09T17:32:40.344Z",
+          "data_source": "team18-job-board"
+        },
+        "first_record": {
+          "id": "jobboard-226",
+          "title": "นักพัฒนา backend",
+          "company": "Siam TechWorks Co., Ltd.",
+          "is_demo": true
+        }
+      }
+    },
+    {
+      "route": "/api/placements",
+      "url": "https://team17-internship.vercel.app/api/placements",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 2.384118,
+      "x_vercel_id": "sin1::iad1::4rcrv-1794245561406-9546bba6a1c9",
+      "interpretation": "200 OK",
+      "historical_2026_11_09_status": 200,
+      "body_summary": {
+        "success": true,
+        "records": 6,
+        "meta": {
+          "request_id": "4999231c-51b7-4892-bd79-fc542c266677",
+          "timestamp": "2026-11-09T17:32:41.648Z",
+          "data_source": "postgresql"
+        },
+        "first_record": {
+          "id": "10000000-0000-4000-8000-000000000001",
+          "title": "Product Design Intern",
+          "company": "Sample Studio",
+          "is_demo": true
+        }
+      }
+    },
+    {
+      "route": "/api/integration/status",
+      "url": "https://team17-internship.vercel.app/api/integration/status",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 0.443241,
+      "x_vercel_id": "sin1::iad1::mm9bv-1794245564033-78ab69a49341",
+      "interpretation": "200 OK",
+      "historical_2026_11_09_status": 200,
+      "body_summary": {
+        "success": true,
+        "request_id": "216b3b9b-c29a-4aff-86a7-0f97201e5f0a",
+        "data": {
+          "team": "team17-internship-management",
+          "service": "internship-management-integration",
+          "version": "0.1",
+          "status": "ok",
+          "timestamp": "2026-11-09T17:32:44.180Z"
+        }
+      }
+    },
+    {
+      "route": "/api/auth/get-session",
+      "url": "https://team17-internship.vercel.app/api/auth/get-session",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 2.90814,
+      "x_vercel_id": "sin1::iad1::6fzhx-1794245564732-472ae2ddafb0",
+      "interpretation": "200 with null body; does NOT prove login works",
+      "historical_2026_11_09_status": 200,
+      "body_summary": null
+    },
+    {
+      "route": "/workspace",
+      "url": "https://team17-internship.vercel.app/workspace",
+      "http_status": 307,
+      "redirect_url": "https://team17-internship.vercel.app/sign-in?next=%2Fworkspace",
+      "time_s": 0.477523,
+      "x_vercel_id": "sin1::iad1::trfp4-1794245567931-3775cf77ab2b",
+      "interpretation": "307 to /sign-in (protected page, unauthenticated)",
+      "historical_2026_11_09_status": 404,
+      "body_summary": null
+    },
+    {
+      "route": "/advisor",
+      "url": "https://team17-internship.vercel.app/advisor",
+      "http_status": 307,
+      "redirect_url": "https://team17-internship.vercel.app/sign-in",
+      "time_s": 0.449158,
+      "x_vercel_id": "sin1::iad1::dm64r-1794245568650-7443cc4e9e2c",
+      "interpretation": "307 to /sign-in (protected page, unauthenticated)",
+      "historical_2026_11_09_status": 404,
+      "body_summary": null
+    },
+    {
+      "route": "/api/workspace",
+      "url": "https://team17-internship.vercel.app/api/workspace",
+      "http_status": 401,
+      "redirect_url": "",
+      "time_s": 0.431998,
+      "x_vercel_id": "sin1::iad1::p668x-1794245569355-c8e7ee1c6285",
+      "interpretation": "401 UNAUTHORIZED (protected API, unauthenticated)",
+      "historical_2026_11_09_status": 404,
+      "body_summary": {
+        "success": false,
+        "error": {
+          "code": "UNAUTHORIZED",
+          "message": "Sign in to your workspace.",
+          "retryable": false
+        }
+      }
+    },
+    {
+      "route": "/api/integration/partner-status",
+      "url": "https://team17-internship.vercel.app/api/integration/partner-status",
+      "http_status": 200,
+      "redirect_url": "",
+      "time_s": 2.119458,
+      "x_vercel_id": "sin1::iad1::9f8f9-1794245570014-a6bc17c753eb",
+      "interpretation": "200 OK",
+      "historical_2026_11_09_status": "not recorded",
+      "body_summary": {
+        "success": true,
+        "requested_at": "2026-11-09T17:32:50.223Z",
+        "data": {
+          "partner_team": "pod5-alumni-network",
+          "partner_service": "alumni-network-integration",
+          "partner_status": "ok",
+          "partner_version": "0.1"
+        }
+      }
+    }
+  ],
+  "limits": [
+    "Point-in-time, unauthenticated observations only.",
+    "No login, happy path or write operation was attempted.",
+    "Deployed commit not verified."
+  ]
+}

@@ -1,0 +1,3 @@
+Recorded: 2026-11-09T17:32:21Z UTC; LOCAL
+found 0 vulnerabilities
+exit 0

@@ -1,0 +1,111 @@
+Recorded: 2026-11-09T17:30:36Z UTC; Node v24.18.1; commit 754ad2a (branch final-eval-handover, base 754ad2a); environment: LOCAL Windows 11 checkout
+== npm run placements:setup
+
+> team17-integration@0.1.0 placements:setup
+> tsx scripts/setup-placements.ts
+
+Local PostgreSQL catalogue ready: 6 records. Demonstration listings only; hosted databases were not changed.
+== npm run auth:setup
+
+> team17-integration@0.1.0 auth:setup
+> tsx scripts/setup-auth.ts
+
+Local administrator created. Credentials are in .env.auth-admin.local (ignored by git).
+Authentication database is ready.
+== npm run advisor:setup
+
+> team17-integration@0.1.0 advisor:setup
+> tsx scripts/setup-advisor.ts
+
+Advisor created; credentials saved in ignored .env.advisor.local.
+Workspace schema and advisor account are ready.
+== tests (sequential)
+2026-11-09T17:30:59.627Z WARN [Better Auth]: Rate limiting could not determine a client IP and is falling back to a single shared per-path bucket. Ensure your runtime forwards a trusted client IP header, then set `advanced.ipAddress.ipAddressHeaders` or `advanced.ipAddress.trustedProxies` so the address can be resolved.
+✔ advisor self-registration: hashed password, fixed role, empty scope, origin rejection and subsequent login (827.1226ms)
+2026-11-09T17:31:01.945Z WARN [Better Auth]: Rate limiting could not determine a client IP and is falling back to a single shared per-path bucket. Ensure your runtime forwards a trusted client IP header, then set `advanced.ipAddress.ipAddressHeaders` or `advanced.ipAddress.trustedProxies` so the address can be resolved.
+2026-11-09T17:31:02.308Z WARN [Better Auth]: Invalid password
+2026-11-09T17:31:02.409Z ERROR [Better Auth]: Invalid origin: https://untrusted.example
+2026-11-09T17:31:02.414Z WARN [Better Auth]: Password is too short
+✔ real authentication: student signup, role escalation denial, administrator access, origin and session revocation (1068.8678ms)
+✔ sqlite: student-requested advisor connections enforce ownership, one advisor and report access (55.1963ms)
+✔ postgres: student-requested advisor connections enforce ownership, one advisor and report access (2881.4557ms)
+✔ Identity operator boundary, configuration, consent and redacted claims (62.3454ms)
+✔ secret verification and payload validation (4.0207ms)
+✔ Pod 5 webhook uses its required payload and HMAC-SHA256 signature (1.6832ms)
+✔ flat and wrapped partner contracts; rejects invalid JSON and shape (3.7716ms)
+✔ body parsing rejects malformed and oversized payloads (26.2395ms)
+✔ timeout includes a stalled body; service recovers without restart (99.2239ms)
+✔ actual SQL migration: atomic claims, replay, conflict, receipt deduplication and privilege boundaries (2555.1171ms)
+✔ browse exposes only current open internships and preserves provenance (56.3037ms)
+✔ search matches skills, companies, province and exact provider category (3.8957ms)
+✔ local pagination retains totals and bounds (1.5158ms)
+✔ invalid filters never call the provider (2.0145ms)
+✔ detail resolves employer from public list and preserves free text skills (2.3591ms)
+✔ missing values are not invented; Thai skill fallback is kept (1.1405ms)
+✔ closed, expired and non-internship detail return 404 (3.9197ms)
+✔ invalid and mismatched IDs cannot fetch arbitrary paths (1.2134ms)
+✔ upstream not found remains 404 (0.5931ms)
+✔ network, HTTP, invalid JSON and schema failures return retryable 503 without demo fallback (4.7008ms)
+✔ English display fields take priority without excluding bilingual or Thai-only records (1.7647ms)
+✔ operator access rejects invalid credentials and configuration while preserving route messages (32.158ms)
+{"action":"placements_request","request_id":"d83ca78a-79cd-49a5-8807-3cf037fe4667","path":"/api/placements","method":"GET","status":200,"duration_ms":15,"timestamp":"2026-11-09T17:31:14.531Z"}
+{"action":"placements_request","request_id":"f424979c-9182-4868-9129-a41b848e243c","path":"/api/placements","method":"GET","status":200,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.549Z"}
+{"action":"placements_request","request_id":"8d9538b7-04b8-42f5-8eb8-a790c655a614","path":"/api/placements","method":"GET","status":200,"duration_ms":5,"timestamp":"2026-11-09T17:31:14.555Z"}
+{"action":"placements_request","request_id":"4a8a486b-18f7-4613-b646-64e6bb61f045","path":"/api/placements","method":"GET","status":200,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.560Z"}
+{"action":"placements_request","request_id":"5d03bb0d-6457-4e70-9279-ca9e05be50ab","path":"/api/placements","method":"GET","status":200,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.564Z"}
+{"action":"placements_request","request_id":"48c56c49-8f6e-43cb-817b-938b40f010c2","path":"/api/placements","method":"GET","status":200,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.568Z"}
+{"action":"placements_request","request_id":"00508bf9-ad94-49b2-bc29-177d2e6652dd","path":"/api/placements","method":"GET","status":200,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.571Z"}
+{"action":"placements_request","request_id":"342e1fa4-037f-44d7-a725-33823611584b","path":"/api/placements","method":"GET","status":200,"duration_ms":4,"timestamp":"2026-11-09T17:31:14.575Z"}
+{"action":"placements_request","request_id":"b86a2e97-3df1-402d-a52d-06eeba47730e","path":"/api/placements","method":"GET","status":200,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.580Z"}
+{"action":"placements_request","request_id":"9eae70a3-6808-4742-8eea-81d0c6a56bdc","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.584Z"}
+{"action":"placements_request","request_id":"30f72614-2203-4e4c-b769-11fffb281a10","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.586Z"}
+{"action":"placements_request","request_id":"f67c6190-cf10-4783-8a3f-3e9f7c396119","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.586Z"}
+{"action":"placements_request","request_id":"07ced350-18ad-47b7-a4dc-8a2818d43505","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.586Z"}
+{"action":"placements_request","request_id":"707bd260-03fd-4254-a08d-6490abf23e7d","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.587Z"}
+{"action":"placements_request","request_id":"6b41ce3b-888f-48db-b8d6-42b1c6dac003","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.587Z"}
+{"action":"placements_request","request_id":"a1c97851-09ea-49b8-8c7d-de4d3a6b37ea","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.588Z"}
+{"action":"placements_request","request_id":"e8def5f0-35b4-462f-a5ad-827d2032f96d","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.588Z"}
+{"action":"placements_request","request_id":"6dbb1ccb-d582-4bf2-afdd-84f25330260e","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.589Z"}
+{"action":"placements_request","request_id":"4939b4c3-4200-4cf1-9dcd-35f7efaa1467","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.590Z"}
+{"action":"placements_request","request_id":"b3ab30dd-9955-4416-8774-df7ec869c7ad","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.590Z"}
+{"action":"placements_request","request_id":"4c20d7f8-5739-4f37-a7b9-538d71c25b27","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.591Z"}
+{"action":"placements_request","request_id":"47e85c22-1197-411e-bd01-6fe2f2ec0050","path":"/api/placements/20000000-0000-4000-8000-000000000001","method":"GET","status":200,"duration_ms":4,"timestamp":"2026-11-09T17:31:14.592Z"}
+{"action":"placements_request","request_id":"8f66cb3c-102d-4246-ba9a-436b132ecafd","path":"/api/placements","method":"GET","status":404,"duration_ms":2,"timestamp":"2026-11-09T17:31:14.596Z"}
+{"action":"placements_request","request_id":"bca3648c-008f-4a1c-92a2-5492632f372f","path":"/api/placements","method":"GET","status":404,"duration_ms":3,"timestamp":"2026-11-09T17:31:14.598Z"}
+{"action":"placements_request","request_id":"498ce183-a1c0-4eb6-9d01-e5a3eeeb8dfe","path":"/api/placements","method":"GET","status":404,"duration_ms":2,"timestamp":"2026-11-09T17:31:14.601Z"}
+{"action":"placements_request","request_id":"cc13dfd9-33bb-475d-a0a3-03b83ed3e973","path":"/api/placements","method":"GET","status":404,"duration_ms":2,"timestamp":"2026-11-09T17:31:14.604Z"}
+{"action":"placements_request","request_id":"08d2ecf9-c3c6-4401-b3d5-48b17d2c2b3e","path":"/api/placements","method":"GET","status":404,"duration_ms":2,"timestamp":"2026-11-09T17:31:14.606Z"}
+{"action":"placements_request","request_id":"78d034f3-3694-4b6e-9638-e3c903de2c9a","path":"/api/placements","method":"GET","status":404,"duration_ms":2,"timestamp":"2026-11-09T17:31:14.608Z"}
+{"action":"placements_request","request_id":"8a98cecf-d5d0-46dc-9bf9-0449c0577a6a","path":"/api/placements","method":"GET","status":400,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.610Z"}
+{"action":"placements_request","request_id":"bbed7493-3994-44ce-a99f-62e93de442e7","path":"/api/placements","method":"GET","status":400,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.610Z"}
+{"action":"placements_request","request_id":"856dcd23-0bb7-42d7-8f0c-62be1fb65fb6","path":"/api/placements","method":"GET","status":503,"duration_ms":1,"timestamp":"2026-11-09T17:31:14.611Z"}
+{"action":"placements_request","request_id":"6c2b98d3-a2f8-4832-b284-e15e26a839d4","path":"/api/placements","method":"GET","status":503,"duration_ms":0,"timestamp":"2026-11-09T17:31:14.612Z"}
+▶ public placements API against the actual PostgreSQL migration
+  ✔ only open published current records; stable pagination and allowlisted fields (58.8658ms)
+  ✔ combined case-insensitive filters and literal SQL-like text (20.0417ms)
+  ✔ empty and out-of-range pages retain total count (8.3868ms)
+  ✔ reject invalid and repeated parameters before touching storage (7.4817ms)
+  ✔ details apply the same visibility rules and validate UUIDs (19.2268ms)
+  ✔ storage failure gives a bounded redacted error with correlation ID (1.4759ms)
+  ✔ publication integrity and default-deny RLS are installed (8.251ms)
+✔ public placements API against the actual PostgreSQL migration (3045.015ms)
+{"action":"webhook_sent","details":{"event_id":"4bc5f9f2-bcf1-4f55-8e43-2a1bd6a352c5","partner_url":"https://partner.example.test/hook","delivery":{"state":"delivered","status":200,"response":"{\"success\":true}","attempted_at":"2026-11-09T17:31:18.026Z"}},"created_at":"2026-11-09T17:31:18.034Z"}
+{"action":"webhook_rejected","details":{"secret_verified":false,"status":401},"created_at":"2026-11-09T17:31:18.052Z"}
+{"action":"webhook_received","details":{"event_id":"evt1","secret_verified":true,"duplicate":false},"created_at":"2026-11-09T17:31:18.066Z"}
+{"action":"webhook_received","details":{"event_id":"evt1","secret_verified":true,"duplicate":true},"created_at":"2026-11-09T17:31:18.073Z"}
+{"action":"consumer_request","details":{"success":false,"requested_at":"2026-11-09T17:31:18.076Z","partner_url":"https://partner.example.test/status","code":"PARTNER_HTTP_ERROR","duration_ms":1},"created_at":"2026-11-09T17:31:18.077Z"}
+{"action":"consumer_request","details":{"success":true,"requested_at":"2026-11-09T17:31:18.078Z","partner_url":"https://partner.example.test/status","status":200,"duration_ms":5},"created_at":"2026-11-09T17:31:18.083Z"}
+✔ routes with actual SQL: protected writes, one send per key, conflicts, secret rejection and consumer recovery (2558.1496ms)
+2026-11-09T17:31:20.194Z WARN [Better Auth]: Rate limiting could not determine a client IP and is falling back to a single shared per-path bucket. Ensure your runtime forwards a trusted client IP header, then set `advanced.ipAddress.ipAddressHeaders` or `advanced.ipAddress.trustedProxies` so the address can be resolved.
+✔ Identity authentication verifies the provider profile and issues a bounded student session without a local password (724.0549ms)
+✔ real sqlite workspace: assigned students, isolated reviews, version conflicts and weekly reports (40.1438ms)
+✔ real postgres workspace: assigned students, isolated reviews, version conflicts and weekly reports (2753.701ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26236.3309
+exit 0

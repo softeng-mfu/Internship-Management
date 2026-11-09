@@ -1,0 +1,41 @@
+{
+  "request": "GET https://team17-internship.vercel.app/api/jobs/jobboard-226",
+  "http_status": 200,
+  "captured_at_utc": "2026-11-09T17:33Z (minute precision; captured between 17:32:50Z and 17:33:37Z)",
+  "x_request_id": null,
+  "note": "Unmodified public response; Team 18 demo listing.",
+  "response": {
+    "success": true,
+    "data": {
+      "id": "jobboard-226",
+      "title": "นักพัฒนา backend",
+      "company": "Siam TechWorks Co., Ltd.",
+      "description": "backendbackendbackendbackendbackendbackendbackendbackendbackendbackend",
+      "location": "Bts, กรุงเทพมหานคร",
+      "category": "IT & Software",
+      "work_mode": "unspecified",
+      "skills": [],
+      "required_skills": null,
+      "responsibilities": null,
+      "qualifications": null,
+      "benefits": null,
+      "allowance_thb": null,
+      "salary_text": "ตามตกลง",
+      "duration_weeks": null,
+      "application_deadline": null,
+      "status": "open",
+      "is_demo": true,
+      "published_at": "2026-11-09 16:17:14",
+      "updated_at": "2026-11-09 16:17:14",
+      "details_url": "https://team17-internship.vercel.app/opportunities/jobboard-226",
+      "source": "team18-job-board",
+      "source_job_id": 226
+    },
+    "meta": {
+      "api_version": "1.0",
+      "request_id": "714ace4f-48a1-45af-b182-2fd4e93f8c09",
+      "timestamp": "2026-11-09T17:33:34.923Z",
+      "data_source": "team18-job-board"
+    }
+  }
+}
