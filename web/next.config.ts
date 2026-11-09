@@ -9,6 +9,9 @@ const config: NextConfig = {
     "/api/integration/activity": ["./certs/supabase-ca.crt"],
     "/api/auth/**": ["./certs/supabase-ca.crt"],
     "/api/identity/**": ["./certs/supabase-ca.crt"],
+    "/api/workspace": ["./certs/supabase-ca.crt"],
+    "/advisor": ["./certs/supabase-ca.crt"],
+    "/workspace": ["./certs/supabase-ca.crt"],
   },
 };
 export default config;

@@ -2,102 +2,52 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Placement, PlacementList } from "@/lib/placement-types";
-type Props = {
-  compact?: boolean;
-  savedOnly?: boolean;
-  saved: string[];
-  onSave: (id: string) => void;
-};
+type Props = { compact?: boolean; onApply?: (placement: Placement) => void };
 const tones: Record<string, string> = {
   Design: "lavender",
   Engineering: "blue",
   Marketing: "cream",
   Data: "green",
 };
-export default function PlacementBrowser({
-  compact = false,
-  savedOnly = false,
-  saved,
-  onSave,
-}: Props) {
+export default function PlacementBrowser({ compact = false, onApply }: Props) {
   const [query, setQuery] = useState(""),
     [location, setLocation] = useState(""),
     [category, setCategory] = useState(""),
-    [mode, setMode] = useState("");
-  const [page, setPage] = useState(1),
-    [data, setData] = useState<PlacementList | null>(null),
-    [loading, setLoading] = useState(true),
+    [mode, setMode] = useState(""),
+    [page, setPage] = useState(1);
+  const [data, setData] = useState<PlacementList | null>(null),
     [error, setError] = useState(""),
+    [loading, setLoading] = useState(true),
     [retry, setRetry] = useState(0);
-  const savedKey = saved.join(",");
   useEffect(() => {
     const controller = new AbortController();
-    const timeout = setTimeout(
+    setLoading(true);
+    setError("");
+    const timer = setTimeout(
       async () => {
-        setLoading(true);
-        setError("");
         try {
-          const read = async (url: string) => {
-            const r = await fetch(url, {
-              signal: controller.signal,
-              cache: "no-store",
-            });
-            const body = await r.json();
-            if (r.status === 404 && savedOnly) return null;
-            if (!r.ok)
-              throw new Error(
-                body.error?.message || "Unable to load opportunities.",
-              );
-            return body;
-          };
-          if (savedOnly) {
-            const ids = savedKey.split(",").filter(Boolean);
-            const results = await Promise.all(
-              ids.map((id) =>
-                read("/api/placements/" + encodeURIComponent(id)),
-              ),
+          const params = new URLSearchParams({
+            page: String(page),
+            limit: compact ? "3" : "6",
+            status: "open",
+          });
+          if (query.trim()) params.set("q", query.trim());
+          if (location.trim()) params.set("location", location.trim());
+          if (category) params.set("category", category);
+          if (mode) params.set("work_mode", mode);
+          const response = await fetch("/api/placements?" + params, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+          const body = await response.json();
+          if (!response.ok)
+            throw new Error(
+              body.error?.message || "Unable to load opportunities.",
             );
-            const items: Placement[] = results
-              .filter(Boolean)
-              .map((r) => r.data);
-            if (!controller.signal.aborted)
-              setData({
-                success: true,
-                data: items,
-                pagination: {
-                  page: 1,
-                  limit: 50,
-                  total: items.length,
-                  total_pages: items.length ? 1 : 0,
-                  has_next: false,
-                },
-                meta: {
-                  api_version: "1.0",
-                  request_id: "",
-                  timestamp: "",
-                  data_source: "database",
-                },
-              });
-          } else {
-            const params = new URLSearchParams({
-              page: String(page),
-              limit: compact ? "3" : "6",
-              status: "open",
-            });
-            if (query.trim()) params.set("q", query.trim());
-            if (location.trim()) params.set("location", location.trim());
-            if (category) params.set("category", category);
-            if (mode) params.set("work_mode", mode);
-            const result = await read("/api/placements?" + params);
-            if (!controller.signal.aborted) setData(result);
-          }
+          if (!controller.signal.aborted) setData(body);
         } catch (e) {
-          if (!controller.signal.aborted) {
-            setData(null);
-            setError(
-              e instanceof Error ? e.message : "Unable to load opportunities.",
-            );
-          }
+          if (!controller.signal.aborted)
+            setError(e instanceof Error ? e.message : "Unable to connect.");
         } finally {
           if (!controller.signal.aborted) setLoading(false);
         }
@@ -105,140 +55,95 @@ export default function PlacementBrowser({
       query || location ? 250 : 0,
     );
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(timer);
       controller.abort();
     };
-  }, [
-    query,
-    location,
-    category,
-    mode,
-    page,
-    compact,
-    savedOnly,
-    savedOnly ? savedKey : "",
-    retry,
-  ]);
+  }, [query, location, category, mode, page, compact, retry]);
   function filter(change: () => void) {
-    change();
     setPage(1);
-    setLoading(true);
+    change();
   }
   return (
-    <div className="placement-browser">
-      {!compact && !savedOnly && (
-        <div className="filter-bar placement-filters">
-          <label className="search-field">
-            <span aria-hidden="true">⌕</span>
+    <section aria-label="Internship opportunities">
+      {!compact && (
+        <div className="catalogue-filters">
+          <label>
+            Search internships
             <input
-              aria-label="Search opportunities"
-              placeholder="Search roles, companies, or skills…"
-              maxLength={100}
+              placeholder="Role, company or skill"
               value={query}
               onChange={(e) => filter(() => setQuery(e.target.value))}
             />
           </label>
-          <input
-            className="location-filter"
-            aria-label="Filter by location"
-            placeholder="Location"
-            maxLength={100}
-            value={location}
-            onChange={(e) => filter(() => setLocation(e.target.value))}
-          />
-          <select
-            aria-label="Category"
-            value={category}
-            onChange={(e) => filter(() => setCategory(e.target.value))}
-          >
-            <option value="">All opportunities</option>
-            {["Design", "Engineering", "Marketing", "Data"].map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-          <select
-            aria-label="Work arrangement"
-            value={mode}
-            onChange={(e) => filter(() => setMode(e.target.value))}
-          >
-            <option value="">All arrangements</option>
-            <option value="remote">Remote</option>
-            <option value="hybrid">Hybrid</option>
-            <option value="on-site">On-site</option>
-          </select>
+          <label>
+            Location
+            <input
+              placeholder="City or remote"
+              value={location}
+              onChange={(e) => filter(() => setLocation(e.target.value))}
+            />
+          </label>
+          <label>
+            Category
+            <select
+              value={category}
+              onChange={(e) => filter(() => setCategory(e.target.value))}
+            >
+              <option value="">All categories</option>
+              {Object.keys(tones).map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Work arrangement
+            <select
+              value={mode}
+              onChange={(e) => filter(() => setMode(e.target.value))}
+            >
+              <option value="">All arrangements</option>
+              <option value="on-site">On-site</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="remote">Remote</option>
+            </select>
+          </label>
         </div>
       )}
-      <div className="results-heading">
-        <span aria-live="polite">
+      <div className="section-heading">
+        <p className="muted" role="status">
           {loading
-            ? "Loading opportunities…"
-            : error
-              ? "Connection unavailable"
-              : `${data?.pagination.total ?? 0} ${savedOnly ? "saved opportunities" : "open opportunities"}`}
-        </span>
-        <span>Database listings · Applications remain a demo</span>
+            ? "Finding opportunities…"
+            : `${data?.pagination.total || 0} open opportunities`}
+        </p>
+        {!compact && <span className="count-pill">Internship catalogue</span>}
       </div>
-      {loading ? (
-        <div
-          className="job-grid"
-          aria-label="Loading opportunities"
-          aria-busy="true"
-        >
-          {Array.from({ length: compact ? 3 : 6 }, (_, i) => (
-            <div className="job-card catalogue-skeleton" key={i}>
-              <div />
-              <div />
-              <div />
-            </div>
-          ))}
-        </div>
-      ) : error ? (
-        <div className="empty" role="alert">
-          <h3>A little connection trouble.</h3>
+      {error ? (
+        <div className="full-panel empty" role="alert">
+          <h3>We couldn’t load opportunities.</h3>
           <p>{error}</p>
-          <button
-            className="primary"
-            onClick={() => {
-              setLoading(true);
-              setRetry((n) => n + 1);
-            }}
-          >
+          <button className="secondary" onClick={() => setRetry((v) => v + 1)}>
             Try again
           </button>
         </div>
+      ) : loading ? (
+        <div className="full-panel empty">Loading opportunities…</div>
       ) : !data?.data.length ? (
-        <div className="empty">
-          <h3>
-            {savedOnly
-              ? "Keep a good possibility close."
-              : "No opportunities found."}
-          </h3>
-          <p>
-            {savedOnly
-              ? "Save opportunities from the catalogue. Expired and unavailable listings are automatically hidden."
-              : "Try another keyword or location, or clear your filters."}
-          </p>
-          {savedOnly ? (
-            <Link href="/?view=Opportunities" className="secondary">
-              Browse opportunities
-            </Link>
-          ) : (
-            !compact && (
-              <button
-                className="secondary"
-                onClick={() =>
-                  filter(() => {
-                    setQuery("");
-                    setLocation("");
-                    setCategory("");
-                    setMode("");
-                  })
-                }
-              >
-                Clear filters
-              </button>
-            )
-          )}
+        <div className="full-panel empty">
+          <h3>No matches yet.</h3>
+          <p>Try another keyword or clear your filters.</p>
+          <button
+            className="secondary"
+            onClick={() =>
+              filter(() => {
+                setQuery("");
+                setLocation("");
+                setCategory("");
+                setMode("");
+              })
+            }
+          >
+            Clear filters
+          </button>
         </div>
       ) : (
         <div className="job-grid listing-grid">
@@ -250,14 +155,9 @@ export default function PlacementBrowser({
                 >
                   {p.company.charAt(0)}
                 </span>
-                <button
-                  className={`save-button ${saved.includes(p.id) ? "is-saved" : ""}`}
-                  aria-label={`${saved.includes(p.id) ? "Unsave" : "Save"} ${p.title}`}
-                  aria-pressed={saved.includes(p.id)}
-                  onClick={() => onSave(p.id)}
-                >
-                  {saved.includes(p.id) ? "◆" : "◇"}
-                </button>
+                {p.is_demo && (
+                  <span className="demo-record">Sample listing</span>
+                )}
               </div>
               <p className="company-name">
                 {p.company}
@@ -270,10 +170,9 @@ export default function PlacementBrowser({
                 {p.location} · {p.work_mode}
               </p>
               <div className="tags">
-                {p.skills.map((s) => (
-                  <span key={s}>{s}</span>
+                {p.skills.map((skill) => (
+                  <span key={skill}>{skill}</span>
                 ))}
-                {p.is_demo && <span className="demo-record">Demo record</span>}
               </div>
               <p className="deadline">
                 Apply by{" "}
@@ -291,19 +190,19 @@ export default function PlacementBrowser({
                     ? "Allowance not specified"
                     : `฿${p.allowance_thb.toLocaleString()} / month`}
                 </span>
-                <Link
-                  href={"/opportunities/" + p.id}
-                  aria-label={"View " + p.title}
-                >
-                  View ↗
-                </Link>
+                {onApply ? (
+                  <button className="text-button" onClick={() => onApply(p)}>
+                    Apply →
+                  </button>
+                ) : (
+                  <Link href={"/opportunities/" + p.id}>View ↗</Link>
+                )}
               </div>
             </article>
           ))}
         </div>
       )}
       {!compact &&
-        !savedOnly &&
         data &&
         !error &&
         !loading &&
@@ -312,10 +211,7 @@ export default function PlacementBrowser({
             <button
               className="secondary"
               disabled={page === 1}
-              onClick={() => {
-                setLoading(true);
-                setPage((p) => p - 1);
-              }}
+              onClick={() => setPage((p) => p - 1)}
             >
               ← Previous
             </button>
@@ -325,15 +221,12 @@ export default function PlacementBrowser({
             <button
               className="secondary"
               disabled={!data.pagination.has_next}
-              onClick={() => {
-                setLoading(true);
-                setPage((p) => p + 1);
-              }}
+              onClick={() => setPage((p) => p + 1)}
             >
               Next →
             </button>
           </div>
         )}
-    </div>
+    </section>
   );
 }

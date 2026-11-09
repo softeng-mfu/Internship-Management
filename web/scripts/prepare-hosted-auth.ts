@@ -4,6 +4,7 @@ import { randomBytes } from "node:crypto";
 import { Pool } from "pg";
 import { getMigrations } from "better-auth/db/migration";
 import { createAuthentication } from "../src/lib/auth";
+import { workspaceStore } from "../src/lib/workspace";
 
 async function main() {
   process.loadEnvFile(".env.local");
@@ -35,6 +36,7 @@ async function main() {
     if (schema.rows[0].name !== "internly_auth") throw new Error("Auth schema isolation check failed.");
     const auth = createAuthentication(runtime, values.BETTER_AUTH_SECRET, values.BETTER_AUTH_URL);
     await (await getMigrations(auth.options)).runMigrations();
+    await workspaceStore(runtime).migrate();
     const tables = await runtime.query("select count(*)::int as count from information_schema.tables where table_schema='internly_auth'");
     console.log(JSON.stringify({ ready:true, schema:"internly_auth", tables:tables.rows[0].count, credentials:"saved privately" }));
   } finally { await runtime?.end(); await admin.end(); }

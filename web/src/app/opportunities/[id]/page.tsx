@@ -106,18 +106,20 @@ export default async function Opportunity({
           {p.is_demo
             ? "This is a fictional demonstration listing stored in the database. It is not a real vacancy or company offer. "
             : ""}
-          This catalogue is read-only. Applications cannot be submitted from
-          this page.
+          Sign in with your student identity to submit an application and follow
+          its review in your workspace.
         </aside>
         <div className="detail-actions">
-          <Link href="/?view=Opportunities" className="primary">
-            Explore more opportunities →
+          <Link
+            href={`/workspace?tab=opportunities&apply=${p.id}`}
+            className="primary"
+          >
+            Apply for this opportunity →
           </Link>
-          <a href={"/api/placements/" + p.id} className="text-button">
-            View API response ↗
-          </a>
+          <Link href="/?view=Opportunities" className="text-button">
+            All opportunities →
+          </Link>
         </div>
-        <p className="detail-id">Placement ID {p.id}</p>
       </article>
     </main>
   );

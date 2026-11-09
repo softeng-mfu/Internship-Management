@@ -38,12 +38,11 @@ export default function IdentityPanel() {
         </a>
       </section>
       <section className="full-panel">
-        <h2>Operator claims check</h2>
+        <h2>Shared student profile</h2>
         <p className="demo-note">
-          This checks profile sharing; it does not sign a student into this
-          application. Your signed-in account authorizes this check.
-          Make sure the student has enabled profile:read consent for the
-          confirmed Identity service. Never enter the service API key here.
+          View a profile shared through Student Identity. The student must
+          enable profile:read sharing for our registered service before their
+          details can be shown.
         </p>
         <form
           className="activity-auth"
@@ -80,7 +79,7 @@ export default function IdentityPanel() {
           <input
             id="identity-student"
             inputMode="numeric"
-              disabled={busy}
+            disabled={busy}
             pattern="[0-9]{10}"
             maxLength={10}
             required
@@ -95,7 +94,7 @@ export default function IdentityPanel() {
           </button>
           <button
             type="button"
-              disabled={busy}
+            disabled={busy}
             className="text-button"
             onClick={() => {
               setStudent("");

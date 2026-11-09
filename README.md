@@ -41,12 +41,15 @@ Review staged files before committing. These commands publish the existing histo
 
 ## Frontend workspace
 
-The homepage contains the Internly student dashboard, searchable opportunities,
-saved listings, an application tracker, weekly reports, and an advisor preview.
-Opportunities, recommendations, and shareable detail pages read from the placements
-API. Local PostgreSQL contains six fictional records labeled `is_demo=true`.
-Saved IDs persist in the browser. Application, advisor, and weekly-report actions
-remain clearly labeled browser demos and do not write to Supabase.
+Guests see a searchable opportunity catalogue. Signed-in students use one workspace
+for Overview, Opportunities, Applications, Progress reports and Integrations.
+Advisors use the same layout with an additional assigned-students screen.
+Student login uses the campus Identity service; advisor accounts use this backend.
+Applications, reviews and reports are stored in the application database. The old
+sample dashboard, saved-only demo page and advisor preview have been removed.
+The catalogue includes fictional database fixtures labeled `is_demo=true` and
+displayed as Sample listing. See [the workflow guide](docs/STUDENT_ADVISOR_WORKFLOW.md)
+for local setup, advisor registration, assignments and production migration needs.
 
 ## Team 12 public opportunities API
 
@@ -79,9 +82,10 @@ only published, open, unexpired opportunities. Production handover remains pendi
 
 The Integration activity section reads the existing A5 tables. Configure a
 server-only `DATABASE_URL` in `web/.env.local`, and set an independent random
-`INTEGRATION_ADMIN_TOKEN` of at least 32 characters. Open Integration activity
-and enter that operator token. It is held in memory, not browser storage.
-The endpoint requires bearer authorization and returns only counts and selected
+`INTEGRATION_ADMIN_TOKEN` of at least 32 characters for server scripts. Signed-in
+users open Integrations → Activity using their existing session, without entering
+an operator token. Student Identity is the second view in the same Integrations tab.
+The activity endpoint returns only counts and selected
 record metadata, excluding raw payloads and responses. PostgreSQL connections
 verify TLS using `web/certs/supabase-ca.crt` and use read-only sessions.
 The supplied certificate is Supabase's public root CA, downloaded from

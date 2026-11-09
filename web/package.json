@@ -10,7 +10,8 @@
     "test": "tsx --conditions=react-server --test tests/*.test.ts",
     "mock-partner": "tsx scripts/mock-partner.ts",
     "placements:setup": "tsx scripts/setup-placements.ts",
-    "auth:setup": "tsx scripts/setup-auth.ts"
+    "auth:setup": "tsx scripts/setup-auth.ts",
+    "advisor:setup": "tsx scripts/setup-advisor.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "latest",

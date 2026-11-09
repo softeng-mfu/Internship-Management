@@ -10,7 +10,7 @@ import { ApiError } from "../src/lib/core";
 test("real authentication: student signup, role escalation denial, administrator access, origin and session revocation", async () => {
   const db = new DatabaseSync(":memory:");
   const origin = "http://127.0.0.1:3001";
-  const auth = createAuthentication(db, randomBytes(48).toString("hex"), origin);
+  const auth = createAuthentication(db, randomBytes(48).toString("hex"), origin, { allowLocalSignup: true });
   await (await getMigrations(auth.options)).runMigrations();
   const call = (path: string, body?: unknown, cookie?: string, requestOrigin = origin) => auth.handler(new Request(`${origin}/api/auth/${path}`, {
     method: body ? "POST" : "GET",

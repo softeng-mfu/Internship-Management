@@ -1,5 +1,7 @@
 # Internly authentication
 
+Current local implementation: student login now uses the campus Identity service; advisors can create email/password accounts using Advisor login → Create advisor account. Newly registered advisors have no student assignments. Generic email signup is disabled. See [STUDENT_ADVISOR_WORKFLOW.md](STUDENT_ADVISOR_WORKFLOW.md) for the current workflow and role rules. The earlier email-signup description below documents the prior release. This role-based update has not been deployed.
+
 Access policy update: at the user's request, both Integration activity and Student identity now accept any valid signed-in Internly account. No administrator switch or operator-token input is required. Identity claims still depend on provider consent and the service key. Earlier administrator-only descriptions below are superseded by this policy. A typed student ID does not establish account ownership; this is a shared integration demonstration, not a verified self-service student profile.
 
 Implemented locally on 9 November 2026. This change has not been deployed.
