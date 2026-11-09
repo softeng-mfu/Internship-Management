@@ -54,7 +54,7 @@ export default function PlacementBrowser({
             const ids = savedKey.split(",").filter(Boolean);
             const results = await Promise.all(
               ids.map((id) =>
-                read("/api/placements/" + encodeURIComponent(id)),
+                read((id.startsWith("jobboard-") ? "/api/jobs/" : "/api/placements/") + encodeURIComponent(id)),
               ),
             );
             const items: Placement[] = results
@@ -88,7 +88,7 @@ export default function PlacementBrowser({
             if (location.trim()) params.set("location", location.trim());
             if (category) params.set("category", category);
             if (mode) params.set("work_mode", mode);
-            const result = await read("/api/placements?" + params);
+            const result = await read("/api/jobs?" + params);
             if (!controller.signal.aborted) setData(result);
           }
         } catch (e) {
@@ -152,7 +152,7 @@ export default function PlacementBrowser({
             onChange={(e) => filter(() => setCategory(e.target.value))}
           >
             <option value="">All opportunities</option>
-            {["Design", "Engineering", "Marketing", "Data"].map((c) => (
+            {(data?.meta.categories || []).map((c) => (
               <option key={c}>{c}</option>
             ))}
           </select>
@@ -163,8 +163,7 @@ export default function PlacementBrowser({
           >
             <option value="">All arrangements</option>
             <option value="remote">Remote</option>
-            <option value="hybrid">Hybrid</option>
-            <option value="on-site">On-site</option>
+            <option value="unspecified">Not specified</option>
           </select>
         </div>
       )}
@@ -176,7 +175,7 @@ export default function PlacementBrowser({
               ? "Connection unavailable"
               : `${data?.pagination.total ?? 0} ${savedOnly ? "saved opportunities" : "open opportunities"}`}
         </span>
-        <span>Database listings · Applications remain a demo</span>
+        <span>Team 18 Job Board · Fictional demo listings</span>
       </div>
       {loading ? (
         <div
@@ -267,7 +266,7 @@ export default function PlacementBrowser({
                 {p.title}
               </Link>
               <p className="location">
-                {p.location} · {p.work_mode}
+                {p.location} · {p.work_mode === "unspecified" ? "Arrangement not specified" : p.work_mode}
               </p>
               <div className="tags">
                 {p.skills.map((s) => (
@@ -276,8 +275,8 @@ export default function PlacementBrowser({
                 {p.is_demo && <span className="demo-record">Demo record</span>}
               </div>
               <p className="deadline">
-                Apply by{" "}
-                {new Date(
+                {p.application_deadline ? "Apply by " : "Deadline not specified"}
+                {p.application_deadline && new Date(
                   p.application_deadline + "T12:00:00",
                 ).toLocaleDateString("en-GB", {
                   day: "numeric",
@@ -287,9 +286,9 @@ export default function PlacementBrowser({
               </p>
               <div className="job-card-bottom">
                 <span>
-                  {p.allowance_thb === null
+                  {p.salary_text || (p.allowance_thb === null
                     ? "Allowance not specified"
-                    : `฿${p.allowance_thb.toLocaleString()} / month`}
+                    : `฿${p.allowance_thb.toLocaleString()} / month`)}
                 </span>
                 <Link
                   href={"/opportunities/" + p.id}

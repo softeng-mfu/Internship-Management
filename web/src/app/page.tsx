@@ -26,7 +26,7 @@ type App = {
 };
 type Report = { week: number; summary: string; date: string };
 // Used only by the existing browser-only application and advisor demos.
-// The public catalogue is loaded by PlacementBrowser from /api/placements.
+// The public catalogue is loaded by PlacementBrowser from the Team 18 /api/jobs adapter.
 const demoWorkflowJobs: Job[] = [
   {
     id: 1,

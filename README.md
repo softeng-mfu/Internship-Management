@@ -43,8 +43,12 @@ Review staged files before committing. These commands publish the existing histo
 
 The homepage contains the Internly student dashboard, searchable opportunities,
 saved listings, an application tracker, weekly reports, and an advisor preview.
-Opportunities, recommendations, and shareable detail pages read from the placements
-API. Local PostgreSQL contains six fictional records labeled `is_demo=true`.
+Opportunities, the overview catalogue, and new shareable detail pages read Team 18’s
+public Job Board demo API through `/api/jobs`. Only open, unexpired internships
+are shown; records without a deadline are allowed. All partner listings are fictional.
+The separate `/api/placements` catalogue and existing placement detail links remain
+available for Team 12. Local PostgreSQL contains six fictional placement records
+labeled `is_demo=true`.
 Saved IDs persist in the browser. Application, advisor, and weekly-report actions
 remain clearly labeled browser demos and do not write to Supabase.
 
@@ -74,6 +78,24 @@ the new placements migration once, configure `PLACEMENTS_DB_MODE=postgres` and
 a server-only `PLACEMENTS_DATABASE_URL`, and set `PUBLIC_SITE_URL` to the actual
 HTTPS frontend origin. Hosted read connections verify TLS. The public API exposes
 only published, open, unexpired opportunities. Production handover remains pending.
+
+## Team 18 Job Board integration
+
+Open `/?view=Opportunities` to browse Team 18 internships. No API key, login,
+additional environment variable, or database setup is needed for this catalogue.
+Run the app from `web` with `npm run dev -- --hostname 127.0.0.1 --port 3001`.
+The server needs outbound HTTPS access to `team18-job-board-api.tawee-dev.workers.dev`.
+
+- `GET /api/jobs`: normalized internships with `q`, `location`, `category`,
+  `work_mode`, `status=open`, `page`, and `limit` (maximum 50).
+- `GET /api/jobs/6`: normalized details for partner job 6.
+- `/opportunities/jobboard-6`: human-readable details. Saved listings use
+  `jobboard-<job_id>` IDs to distinguish them from our placement UUIDs.
+
+The adapter calls **only** the partner's public `GET /api/jobs` and
+`GET /api/jobs/{id}` endpoints. It sends no credentials or student profile data.
+See [the integration handoff](docs/JOB_BOARD_INTEGRATION.md) for mappings,
+verification and the application boundary.
 
 ### Live integration activity
 
