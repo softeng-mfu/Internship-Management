@@ -20,12 +20,12 @@
     "is_demo": true,
     "published_at": "2026-11-07T11:56:20.000Z",
     "updated_at": "2026-11-07T11:56:20.000Z",
-    "details_url": "http://127.0.0.1:3001/opportunities/10000000-0000-4000-8000-000000000001"
+    "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000001"
   },
   "meta": {
     "api_version": "1.0",
-    "request_id": "b5e3a5e5-f0e1-436f-ac97-35582ac27155",
-    "timestamp": "2026-11-07T12:07:06.174Z",
-    "data_source": "local-postgresql"
+    "request_id": "695a97d1-b760-40b4-9b69-6518d018340d",
+    "timestamp": "2026-11-07T15:41:04.870Z",
+    "data_source": "postgresql"
   }
 }

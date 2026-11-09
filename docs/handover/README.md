@@ -5,7 +5,17 @@ Consumer: Team 12 Campus Events and Clubs
 Contract version: 1.0
 Prepared: 7 November 2026, Thailand time
 
-## Current readiness
+## Production release verified
+
+Production base URL: https://team17-internship.vercel.app
+
+Public list: GET https://team17-internship.vercel.app/api/placements
+
+Public detail: GET https://team17-internship.vercel.app/api/placements/{id}
+
+Verified on 7 November 2026: list, detail, filters, detail-page links, and existing service status return HTTP 200; invalid limit returns 400. No authentication is required. Six fictional demo listings are stored in hosted Supabase PostgreSQL. Team 12 confirmation remains pending. The local setup instructions below are retained for development.
+
+## Local development background
 
 The list and detail APIs are implemented and verified locally. The Opportunities,
 Saved opportunities, overview recommendations, and shareable detail pages read
@@ -13,10 +23,7 @@ from the database. The local catalogue uses persistent PGlite PostgreSQL files
 under web/.data/placements. This is a real database-backed API, with six fictional
 demonstration listings marked is_demo=true. These are not genuine vacancies.
 
-The new endpoints have NOT been deployed or tested by Team 12 yet. A localhost
-address works only on Team 17's machine. Do not announce a production placements
-URL as ready until it has been deployed and checked from outside that machine.
-Application submission, advisor decisions, and weekly reports remain separate
+The production endpoints are deployed and publicly verified. Team 12 has not yet independently confirmed its integration. Application submission, advisor decisions, and weekly reports remain separate
 browser demos. No student records, CVs, or private applications are exposed here.
 
 ## Connection details

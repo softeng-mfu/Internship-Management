@@ -7,7 +7,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://127.0.0.1:3001",
+      "value": "https://team17-internship.vercel.app",
       "type": "string"
     },
     {

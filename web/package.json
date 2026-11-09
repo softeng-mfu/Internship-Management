@@ -9,12 +9,15 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --conditions=react-server --test tests/*.test.ts",
     "mock-partner": "tsx scripts/mock-partner.ts",
-    "placements:setup": "tsx scripts/setup-placements.ts"
+    "placements:setup": "tsx scripts/setup-placements.ts",
+    "auth:setup": "tsx scripts/setup-auth.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "latest",
     "@supabase/supabase-js": "latest",
+    "better-auth": "^1.7.18",
     "next": "^16.4.5",
+    "pg": "^8.23.1",
     "postgres": "^4.0.0",
     "react": "latest",
     "react-dom": "latest",
@@ -23,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/pg": "^8.23.1",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "tsx": "latest",

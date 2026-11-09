@@ -7,8 +7,12 @@
   },
   "servers": [
     {
+      "url": "https://team17-internship.vercel.app",
+      "description": "Verified production deployment"
+    },
+    {
       "url": "http://127.0.0.1:3001",
-      "description": "Local development only; replace with agreed HTTPS base URL"
+      "description": "Local development"
     }
   ],
   "security": [],
@@ -413,7 +417,7 @@
               "allowance_thb": 12000,
               "duration_weeks": 12,
               "application_deadline": "2027-02-05",
-              "details_url": "http://127.0.0.1:3001/opportunities/10000000-0000-4000-8000-000000000001"
+              "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000001"
             }
           ],
           "pagination": {
@@ -425,9 +429,9 @@
           },
           "meta": {
             "api_version": "1.0",
-            "request_id": "74bf4ab0-fed6-4758-9dad-02667b40baa8",
-            "timestamp": "2026-11-07T12:07:06.129Z",
-            "data_source": "local-postgresql"
+            "request_id": "e57223c9-02d4-480b-82ec-1fd534aff03f",
+            "timestamp": "2026-11-07T15:41:02.941Z",
+            "data_source": "postgresql"
           }
         }
       },
@@ -471,13 +475,13 @@
             "is_demo": true,
             "published_at": "2026-11-07T11:56:20.000Z",
             "updated_at": "2026-11-07T11:56:20.000Z",
-            "details_url": "http://127.0.0.1:3001/opportunities/10000000-0000-4000-8000-000000000001"
+            "details_url": "https://team17-internship.vercel.app/opportunities/10000000-0000-4000-8000-000000000001"
           },
           "meta": {
             "api_version": "1.0",
-            "request_id": "b5e3a5e5-f0e1-436f-ac97-35582ac27155",
-            "timestamp": "2026-11-07T12:07:06.174Z",
-            "data_source": "local-postgresql"
+            "request_id": "695a97d1-b760-40b4-9b69-6518d018340d",
+            "timestamp": "2026-11-07T15:41:04.870Z",
+            "data_source": "postgresql"
           }
         }
       },

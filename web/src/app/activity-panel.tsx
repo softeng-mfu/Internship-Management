@@ -17,7 +17,6 @@ type Activity = {
   fetched_at: string;
 };
 export default function ActivityPanel() {
-  const [token, setToken] = useState("");
   const [data, setData] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,7 +25,6 @@ export default function ActivityPanel() {
     setError("");
     try {
       const response = await fetch("/api/integration/activity", {
-        headers: { Authorization: "Bearer " + token.trim() },
         cache: "no-store",
       });
       const result = await response.json();
@@ -56,11 +54,10 @@ export default function ActivityPanel() {
             className="secondary"
             onClick={() => {
               setData(null);
-              setToken("");
             }}
             disabled={loading}
           >
-            Lock activity
+            Clear displayed activity
           </button>
         )}
       </section>
@@ -73,24 +70,10 @@ export default function ActivityPanel() {
               void load();
             }}
           >
-            <h2>Operator access</h2>
+            <h2>Integration activity</h2>
             <p className="demo-note">
-              Use INTEGRATION_ADMIN_TOKEN from your local .env.local file. This
-              is a separate operator token, not your database password. It is
-              kept in memory for this view.
+              Your signed-in account can view these integration records.
             </p>
-            <label htmlFor="operator-token" className="form-label">
-              Operator token
-            </label>
-            <input
-              id="operator-token"
-              type="password"
-              autoComplete="off"
-              required
-              minLength={32}
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-            />
             <button className="primary" disabled={loading}>
               {loading ? "Connecting…" : "View database activity"}
             </button>

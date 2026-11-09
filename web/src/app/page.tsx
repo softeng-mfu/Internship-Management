@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import ActivityPanel from "./activity-panel";
+import IdentityPanel from "./identity-panel";
 import PlacementBrowser from "./placement-browser";
+import { authClient } from "@/lib/auth-client";
 type Job = {
   id: number;
   title: string;
@@ -142,6 +144,7 @@ const navigation = [
   ["Progress reports", "chart"],
   ["Saved opportunities", "bookmark"],
   ["Integration activity", "spark"],
+  ["Student identity", "users"],
 ];
 function Icon({ name, size = 20 }: { name: string; size?: number }) {
   const p: Record<string, ReactNode> = {
@@ -267,19 +270,26 @@ const dateLabel = (d: string) =>
     month: "short",
   });
 export default function Home() {
+  const { data: session, isPending } = authClient.useSession();
+  const isAdmin = session?.user.role === "admin";
+  const displayName = session?.user.name || "Guest";
+  const initials = session ? displayName.split(/\s+/).slice(0, 2).map(n => n[0]).join("").toUpperCase() : "G";
+  const storageKey = `internly-demo-v2-${session?.user.id || "guest"}`;
   const [view, setView] = useState("Overview"),
     [saved, setSaved] = useState<string[]>([]),
     [applications, setApplications] = useState<App[]>(seed),
     [reports, setReports] = useState<Report[]>([]),
-    [loaded, setLoaded] = useState(false),
+    [loaded, setLoaded] = useState(""),
     [selected, setSelected] = useState<Job | null>(null),
     [modal, setModal] = useState<string | null>(null),
     [toast, setToast] = useState(""),
     [mobile, setMobile] = useState(false),
     [statusFilter, setStatusFilter] = useState("All applications");
   useEffect(() => {
+    if (isPending) return;
+    setSaved([]); setApplications(seed); setReports([]); setModal(null);
     try {
-      const d = JSON.parse(localStorage.getItem("internly-demo-v1") ?? "null");
+      const d = JSON.parse(localStorage.getItem(storageKey) ?? "null");
       if (
         d &&
         Array.isArray(d.saved) &&
@@ -295,17 +305,17 @@ export default function Home() {
     } catch {}
     const requested = new URLSearchParams(window.location.search).get("view");
     if (navigation.some(([name]) => name === requested)) setView(requested!);
-    setLoaded(true);
-  }, []);
+    setLoaded(storageKey);
+  }, [storageKey, isPending]);
   useEffect(() => {
-    if (loaded)
+    if (loaded === storageKey && !isPending)
       try {
         localStorage.setItem(
-          "internly-demo-v1",
+          storageKey,
           JSON.stringify({ saved, applications, reports }),
         );
       } catch {}
-  }, [loaded, saved, applications, reports]);
+  }, [loaded, storageKey, isPending, saved, applications, reports]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 4000);
@@ -455,10 +465,10 @@ export default function Home() {
             <Icon name="arrow" size={16} />
           </button>
           <button className="profile" onClick={() => setModal("profile")}>
-            <span className="avatar">NZ</span>
+            <span className="avatar">{initials}</span>
             <span>
-              <strong>Nadi Zeya</strong>
-              <small>Student workspace</small>
+              <strong>{isPending ? "Loading…" : displayName}</strong>
+              <small>{isAdmin ? "Administrator" : session ? "Student workspace" : "Sign in to your workspace"}</small>
             </span>
             <Icon name="down" size={16} />
           </button>
@@ -487,6 +497,7 @@ export default function Home() {
             <strong>{view}</strong>
           </div>
           <div className="topbar-right">
+            {!session && !isPending && <a className="text-button" href="/sign-in">Sign in</a>}
             <span className="demo-badge">
               <i />
               {view === "Integration activity"
@@ -506,7 +517,7 @@ export default function Home() {
               aria-label="Open profile"
               onClick={() => setModal("profile")}
             >
-              NZ
+              {initials}
             </button>
           </div>
         </header>
@@ -519,7 +530,7 @@ export default function Home() {
               </h1>
               <p>
                 {view === "Overview"
-                  ? "Welcome back, Nadi. Let’s make your next move a meaningful one."
+                  ? `Welcome, ${displayName.split(" ")[0]}. Let’s make your next move a meaningful one.`
                   : view === "Opportunities"
                     ? "Find a place to learn, contribute, and become who you want to be."
                     : view === "My applications"
@@ -832,7 +843,7 @@ export default function Home() {
                           </div>
                           <div>
                             <h3>{j.title}</h3>
-                            <p>Nadi Zeya · {j.company}</p>
+                            <p>{displayName} · {j.company}</p>
                             <p className="statement">“{a.statement}”</p>
                             <div className="review-actions">
                               <button
@@ -882,7 +893,10 @@ export default function Home() {
               )}
             </section>
           )}
-          {view === "Integration activity" && <ActivityPanel />}
+          {view === "Integration activity" && session && <ActivityPanel key={session.user.id} />}
+          {view === "Student identity" && session && <IdentityPanel key={session.user.id} />}
+          {view === "Integration activity" && !session && <section className="full-panel"><h2>Sign in to your workspace</h2><p>Use your normal account to view integration activity.</p><a className="primary" href="/sign-in">Sign in</a></section>}
+          {view === "Student identity" && !session && <section className="full-panel"><h2>Sign in to your workspace</h2><p>Use your normal account to request consented student claims.</p><a className="primary" href="/sign-in">Sign in</a></section>}
           <footer>
             <span>
               <b>internly.</b>A little direction. A world of possibility.
@@ -1128,12 +1142,17 @@ export default function Home() {
       {modal === "profile" && (
         <Modal title="Your workspace" onClose={() => setModal(null)}>
           <div className="profile-detail">
-            <span className="avatar">NZ</span>
+            <span className="avatar">{initials}</span>
             <div>
-              <h3>Nadi Zeya</h3>
-              <p>Student · Internship Management</p>
+              <h3>{displayName}</h3>
+              <p>{session?.user.email || "Browse opportunities or sign in to your account."}</p>
             </div>
           </div>
+          {session ? <button className="secondary" onClick={async () => {
+            const result = await authClient.signOut();
+            if (result.error) { setToast("Unable to sign out. Please try again."); return; }
+            window.location.assign("/sign-in");
+          }}>Sign out</button> : <a className="primary" href="/sign-in">Sign in / Create account</a>}
           <p className="demo-note">
             This is a sample workspace. The advisor preview demonstrates
             reviewing sample applications and grants no access to real student
