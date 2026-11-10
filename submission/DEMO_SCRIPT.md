@@ -9,7 +9,7 @@ Site: **https://team17-internship.vercel.app**. Adapted from the timing in [`FIN
 | Student browser | Browser profile **"Student"** (for example Chrome profile 2). Password-manager autofill off |
 | Advisor browser | Separate profile/browser **"Advisor"** (for example Edge). **Not** a second tab in the Student profile |
 | Student account | A consenting student with their own Student Identity login. They type their password themselves. They must have **no accepted advisor yet**, or use a fresh student |
-| Advisor account | Created on the cloud site: *Advisor login → Create advisor account*, name like `Demo Advisor (Team 17)`, password at least 12 characters, kept by the advisor |
+| Advisor account | Created on the cloud site: *Advisor login → Create advisor account*, name like `Demo Advisor (Team 17)`, password at least 12 characters, kept by the advisor. Note: advisor self-registration is not staff-verified yet (open security gap 2). Say so if asked |
 | Second advisor (optional) | For the negative test in 5:00–6:00 |
 | Opportunity | A Team 18 listing the student hasn't applied to yet (check `/api/jobs`) |
 | Backup | Happy-path screenshots in [`evidence/happy-path/`](../evidence/happy-path/README.md), once captured |
@@ -20,7 +20,7 @@ Site: **https://team17-internship.vercel.app**. Adapted from the timing in [`FIN
 | Time | Who | Do this (URL) | Say | Evidence file this produces |
 |---|---|---|---|---|
 | 0:00–0:45 | Presenter | Open `/` in a normal window | Public HTTPS site on Vercel; Next.js + Better Auth + PostgreSQL; roles Student / Advisor / Admin | `cloud-deployment/02-public-site.png` |
-| 0:45–1:45 | **Student** | `/sign-in` → Student login → own ID + password → `/workspace` | Password goes to our backend → Identity `/auth/login` → we check `/me` ID matches → 15-minute session. Password never stored | `happy-path/01`, `02`; `student-identity-login/01–03` |
+| 0:45–1:45 | **Student** | `/sign-in` → Student login → own ID + password → `/workspace` | Password goes to our backend → Identity `/auth/login` → we check `/me` ID matches → session lasts at most 15 minutes (or until the Identity token expires, if sooner). Password never stored | `happy-path/01`, `02`; `student-identity-login/01–03` |
 | | **Student** | `/workspace` → Opportunities | Live Team 18 Job Board listings, labelled demo | `happy-path/07`; `job-board-api/01` |
 | 1:45–2:45 | **Student** | Advisors → pick Demo Advisor → write intro → send | One pending request at a time | `happy-path/03`, `04` |
 | | **Advisor** | `/advisor` → Students → request → Accept | Acceptance + assignment happen in one transaction | `happy-path/05`, `06` |

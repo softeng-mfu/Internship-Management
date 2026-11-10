@@ -665,7 +665,7 @@
       "sanitization": null,
       "status": "PENDING",
       "pending_owner": "Student",
-      "pending_steps": null
+      "pending_steps": "Student or presenter opens the page that shows Team 19 partner status on https://team17-internship.vercel.app, waits for it to load, captures it with the address bar visible, and records the UTC/Bangkok time in evidence/cross-group-api/README.md"
     },
     {
       "id": "SP-01",
@@ -827,7 +827,7 @@
       "sanitization": null,
       "status": "PENDING",
       "pending_owner": "Student + Advisor testers",
-      "pending_steps": null
+      "pending_steps": "Testers run M1-M10 from this file on the cloud site and fill in tester, time (UTC + Bangkok), environment, steps, expected, actual and retest result. Record successful negative tests separately from real defects"
     },
     {
       "id": "DP-01",
@@ -862,8 +862,8 @@
       "limitations": "Own report marks webhook/outage proofs pending",
       "sanitization": null,
       "status": "PENDING",
-      "pending_owner": null,
-      "pending_steps": null
+      "pending_owner": "Team (optional)",
+      "pending_steps": "Only needed if the final rubric explicitly requires historical A5 webhook/outage proofs. Otherwise keep as supplemental; it does not block the final evaluation"
     }
   ]
 }
